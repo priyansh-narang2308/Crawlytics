@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Menu, X } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
 import { CrawlyticsIcon } from '../icons/logo'
@@ -38,12 +38,12 @@ export const Navbar = () => {
             </Link>
 
             <div className="hidden items-center gap-3 lg:flex">
-              <Button variant="outline" size="sm" className="cursor-pointer">
+              <Link to="/login" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
                 Login
-              </Button>
-              <Button size="sm" variant={'default'} className=" cursor-pointer">
+              </Link>
+              <Link to="/signup" className={buttonVariants({ variant: 'default', size: 'sm' })}>
                 Get Started
-              </Button>
+              </Link>
             </div>
 
             <button
@@ -60,10 +60,14 @@ export const Navbar = () => {
           </div>
 
           {menuState && (
-            <div className="lg:hidden  px-5 py-6">
+            <div className="lg:hidden px-5 py-6">
               <div className="mt-6 flex flex-col gap-3">
-                <Button variant="outline">Login</Button>
-                <Button variant={'default'}>Get Started</Button>
+                <Link to="/login" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+                  Login
+                </Link>
+                <Link to="/signup" className={buttonVariants({ variant: 'default', size: 'sm' })}>
+                  Get Started
+                </Link>
               </div>
             </div>
           )}
