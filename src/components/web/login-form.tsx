@@ -6,13 +6,33 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Field, FieldGroup, FieldLabel } from '@/components/ui/field'
+import {
+  Field,
+  FieldError,
+  FieldGroup,
+  FieldLabel,
+} from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Link } from '@tanstack/react-router'
 import { Mail, Lock } from 'lucide-react'
 import { CrawlyticsIcon } from '../icons/logo'
+import { useForm } from '@tanstack/react-form'
+import { loginSchema } from '@/schemas/auth'
 
 export function LoginForm() {
+  const form = useForm({
+    defaultValues: {
+      email: '',
+      password: '',
+    },
+    validators: {
+      onSubmit: loginSchema,
+    },
+    onSubmit: async ({ value }) => {
+      console.log('Values: ', value)
+    },
+  })
+
   return (
     <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
       <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
@@ -28,47 +48,89 @@ export function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="grid gap-6">
-          
-
-          <form className="grid gap-5">
+          <form
+            className="grid gap-5"
+            onSubmit={(e) => {
+              e.preventDefault()
+              form.handleSubmit()
+            }}
+          >
             <FieldGroup className="gap-5">
-              <Field>
-                <FieldLabel htmlFor="email" className="text-zinc-300">
-                  Email address
-                </FieldLabel>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="name@example.com"
-                    className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
-                    required
-                  />
-                </div>
-              </Field>
-              <Field>
-                <div className="flex items-center justify-between">
-                  <FieldLabel htmlFor="password" className="text-zinc-300">
-                    Password
-                  </FieldLabel>
-                  <a
-                    href="#"
-                    className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                  >
-                    Forgot password?
-                  </a>
-                </div>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
-                  <Input
-                    id="password"
-                    type="password"
-                    className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
-                    required
-                  />
-                </div>
-              </Field>
+              <form.Field
+                name="email"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor={field.name} className="text-zinc-300">
+                        Email address
+                      </FieldLabel>
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="email"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          placeholder="name@example.com"
+                          className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
+                          aria-invalid={isInvalid}
+                          autoComplete="off"
+                        />
+                      </div>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
+              />
+
+              <form.Field
+                name="password"
+                children={(field) => {
+                  const isInvalid =
+                    field.state.meta.isTouched && !field.state.meta.isValid
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <div className="flex items-center justify-between">
+                        <FieldLabel
+                          htmlFor={field.name}
+                          className="text-zinc-300"
+                        >
+                          Password
+                        </FieldLabel>
+                        <a
+                          href="#"
+                          className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+                        >
+                          Forgot password?
+                        </a>
+                      </div>
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+                        <Input
+                          id={field.name}
+                          name={field.name}
+                          type="password"
+                          value={field.state.value}
+                          onBlur={field.handleBlur}
+                          onChange={(e) => field.handleChange(e.target.value)}
+                          className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
+                          aria-invalid={isInvalid}
+                          autoComplete="off"
+                        />
+                      </div>
+                      {isInvalid && (
+                        <FieldError errors={field.state.meta.errors} />
+                      )}
+                    </Field>
+                  )
+                }}
+              />
             </FieldGroup>
 
             <Button
