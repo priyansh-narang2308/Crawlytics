@@ -1,2 +1,1 @@
 # Crawlytic - Web URL Scraper
-
