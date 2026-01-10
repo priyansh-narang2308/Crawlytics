@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
 import { Link, useNavigate } from '@tanstack/react-router'
-import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import { Loader2 } from 'lucide-react'
 import React from 'react'
 
 import { CrawlyticsIcon } from '../icons/logo'
@@ -95,7 +95,7 @@ export function SignupForm() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
-                          placeholder="John Doe"
+                          placeholder="Sample Name"
                           autoComplete="off"
                           disabled={isLoading}
                         />
@@ -122,7 +122,7 @@ export function SignupForm() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           aria-invalid={isInvalid}
-                          placeholder="johndoe@example.com"
+                          placeholder="sample@example.com"
                           autoComplete="off"
                           type="email"
                           disabled={isLoading}

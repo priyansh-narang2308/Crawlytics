@@ -98,7 +98,7 @@ export function LoginForm() {
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
-                          placeholder="name@example.com"
+                          placeholder="sample@example.com"
                           className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
                           aria-invalid={isInvalid}
                           autoComplete="off"
