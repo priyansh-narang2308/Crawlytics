@@ -13,13 +13,20 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Link } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { Eye, EyeOff, Loader2 } from 'lucide-react'
+import React from 'react'
 
 import { CrawlyticsIcon } from '../icons/logo'
 import { useForm } from '@tanstack/react-form'
 import { signUpSchema } from '@/schemas/auth'
+import { authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
 
 export function SignupForm() {
+  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = React.useState(false)
+
   const form = useForm({
     defaultValues: {
       fullName: '',
@@ -30,7 +37,22 @@ export function SignupForm() {
       onSubmit: signUpSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('Values: ', value)
+      setIsLoading(true)
+      await authClient.signUp.email({
+        name: value.fullName,
+        email: value.email,
+        password: value.password,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success('Account created successfully.')
+            navigate({ to: '/dashboard' })
+          },
+          onError: ({ error }) => {
+            toast.error(error.message)
+            setIsLoading(false)
+          },
+        },
+      })
     },
   })
 
@@ -75,6 +97,7 @@ export function SignupForm() {
                           aria-invalid={isInvalid}
                           placeholder="John Doe"
                           autoComplete="off"
+                          disabled={isLoading}
                         />
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />
@@ -102,6 +125,7 @@ export function SignupForm() {
                           placeholder="johndoe@example.com"
                           autoComplete="off"
                           type="email"
+                          disabled={isLoading}
                         />
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />
@@ -128,7 +152,9 @@ export function SignupForm() {
                           placeholder="*******"
                           autoComplete="off"
                           type="password"
+                          disabled={isLoading}
                         />
+
                         {isInvalid && (
                           <FieldError errors={field.state.meta.errors} />
                         )}
@@ -142,8 +168,13 @@ export function SignupForm() {
             <Button
               type="submit"
               className="w-full h-11 text-base cursor-pointer font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all mt-2"
+              disabled={isLoading}
             >
-              Create account
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Create account'
+              )}
             </Button>
           </form>
 

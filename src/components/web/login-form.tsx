@@ -13,13 +13,19 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
-import { Link } from '@tanstack/react-router'
-import { Mail, Lock } from 'lucide-react'
+import { Link, useNavigate } from '@tanstack/react-router'
+import { Mail, Lock, Loader2 } from 'lucide-react'
 import { CrawlyticsIcon } from '../icons/logo'
 import { useForm } from '@tanstack/react-form'
 import { loginSchema } from '@/schemas/auth'
+import { authClient } from '@/lib/auth-client'
+import { toast } from 'sonner'
+import React from 'react'
 
 export function LoginForm() {
+  const navigate = useNavigate()
+  const [isLoading, setIsLoading] = React.useState(false)
+
   const form = useForm({
     defaultValues: {
       email: '',
@@ -29,7 +35,21 @@ export function LoginForm() {
       onSubmit: loginSchema,
     },
     onSubmit: async ({ value }) => {
-      console.log('Values: ', value)
+      setIsLoading(true)
+      await authClient.signIn.email({
+        email: value.email,
+        password: value.password,
+        fetchOptions: {
+          onSuccess: () => {
+            toast.success('Logged in successfully.')
+            navigate({ to: '/dashboard' })
+          },
+          onError: ({ error }) => {
+            toast.error(error.message)
+            setIsLoading(false)
+          },
+        },
+      })
     },
   })
 
@@ -63,7 +83,10 @@ export function LoginForm() {
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
                     <Field data-invalid={isInvalid}>
-                      <FieldLabel htmlFor={field.name} className="text-zinc-300">
+                      <FieldLabel
+                        htmlFor={field.name}
+                        className="text-zinc-300"
+                      >
                         Email address
                       </FieldLabel>
                       <div className="relative">
@@ -79,6 +102,7 @@ export function LoginForm() {
                           className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
                           aria-invalid={isInvalid}
                           autoComplete="off"
+                          disabled={isLoading}
                         />
                       </div>
                       {isInvalid && (
@@ -103,27 +127,24 @@ export function LoginForm() {
                         >
                           Password
                         </FieldLabel>
-                        <a
-                          href="#"
-                          className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
-                        >
-                          Forgot password?
-                        </a>
                       </div>
                       <div className="relative">
                         <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+
                         <Input
                           id={field.name}
                           name={field.name}
-                          type="password"
+                          type={'password'}
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
-                          className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
+                          className="pl-10 pr-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
                           aria-invalid={isInvalid}
+                          placeholder="••••••••"
                           autoComplete="off"
                         />
                       </div>
+
                       {isInvalid && (
                         <FieldError errors={field.state.meta.errors} />
                       )}
@@ -136,8 +157,13 @@ export function LoginForm() {
             <Button
               type="submit"
               className="w-full h-11 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all cursor-pointer"
+              disabled={isLoading}
             >
-              Sign in to account
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Sign in'
+              )}
             </Button>
           </form>
 
