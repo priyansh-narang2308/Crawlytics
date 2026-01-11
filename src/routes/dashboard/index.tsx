@@ -1,17 +1,13 @@
+import { getSessionFn } from '@/data/session'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/dashboard/')({
   component: RouteComponent,
-  loader: () => {
-    return {
-      name: 'priyansh',
-      age: 50,
-    }
-  },
+  loader: () => getSessionFn(),
 })
 
 function RouteComponent() {
-  const data = Route.useLoaderData()
+  const { user } = Route.useLoaderData()
 
-  return <div>{data.name}</div>
+  return <div>{user.name}</div>
 }

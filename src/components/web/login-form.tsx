@@ -41,8 +41,8 @@ export function LoginForm() {
         password: value.password,
         fetchOptions: {
           onSuccess: () => {
-            toast.success('Logged in successfully.')
             navigate({ to: '/dashboard' })
+            toast.success('Logged in successfully.')
           },
           onError: ({ error }) => {
             toast.error(error.message)

@@ -1,3 +1,4 @@
+import {type  User } from "better-auth"
 import { LucideIcon } from "lucide-react"
 
 export interface NavPrimaryProps {
@@ -6,4 +7,8 @@ export interface NavPrimaryProps {
     to: string
     icon: LucideIcon
   }[]
+}
+
+export interface NavUserProps{
+  user:User
 }
