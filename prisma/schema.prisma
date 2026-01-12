@@ -1,4 +1,3 @@
-
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -6,12 +5,6 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-}
-
-model Todo {
-  id        Int      @id @default(autoincrement())
-  title     String
-  createdAt DateTime @default(now())
 }
 
 model User {
@@ -24,6 +17,8 @@ model User {
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
   accounts      Account[]
+
+  savedItems SavedItem[]
 
   @@unique([email])
   @@map("user")
@@ -75,4 +70,32 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model SavedItem {
+  id  String @id @default(uuid())
+  url String
+
+  title   String?
+  content String? //clean markdown from crawl
+  summary String?
+  tags    String[]
+  author  String?
+
+  status ItemStatus @default(PENDING)
+
+  publishedAt DateTime?
+  ogImage     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String
+}
+
+enum ItemStatus {
+  PENDING //just saved
+  PROCESSING //in progress
+  COMPLETED //compleetet
+  FAILED
 }
