@@ -1,11 +1,11 @@
 import z from 'zod'
 
 export const importSingleSchema = z.object({
-  url: z.url(),
+  url: z.string().url(),
 })
 
 export const importBulkSchema = z.object({
-  url: z.url(),
+  url: z.string().url(),
   search: z.string(), //to filter the urls
 })
 

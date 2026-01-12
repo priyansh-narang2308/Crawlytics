@@ -24,6 +24,7 @@ export const scrapeUrlFn = createServerFn({ method: 'POST' })
           {
             type: 'json',
             schema: extractSchema,
+            // prompt:"Please extract the author name and the published at date"
           },
         ],
         onlyMainContent: true,
@@ -31,6 +32,8 @@ export const scrapeUrlFn = createServerFn({ method: 'POST' })
 
       // Ftech it from the schemas
       const jsonData = result.json as z.infer<typeof extractSchema>
+
+      console.log(jsonData)
 
       let publishedAt = null
 
