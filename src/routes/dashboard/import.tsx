@@ -31,6 +31,7 @@ import { Input } from '@/components/ui/input'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { importBulkSchema, importSingleSchema } from '@/schemas/import'
+import { scrapeUrlFn } from '@/data/items'
 
 export const Route = createFileRoute('/dashboard/import')({
   component: RouteComponent,
@@ -49,6 +50,7 @@ function RouteComponent() {
     onSubmit: async ({ value }) => {
       startTransition(async () => {
         console.log('Values: ', value)
+        await scrapeUrlFn({data:value})
       })
     },
   })
