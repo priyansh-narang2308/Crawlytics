@@ -1,6 +1,8 @@
-import { useTransition } from 'react'
+import { useState, useTransition } from 'react'
 import {
   ArrowRight,
+  Check,
+  ExternalLink,
   GlobeIcon,
   Lightbulb,
   LinkIcon,
@@ -28,11 +30,15 @@ import {
   FieldLabel,
 } from '@/components/ui/field'
 import { Input } from '@/components/ui/input'
+import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { importBulkSchema, importSingleSchema } from '@/schemas/import'
-import { scrapeUrlFn } from '@/data/items'
+import { mapUrlFn, scrapeUrlFn } from '@/data/items'
 import { toast } from 'sonner'
+import { type SearchResultWeb } from '@mendable/firecrawl-js'
+import { Label } from '@/components/ui/label'
+import { Checkbox } from '@/components/ui/checkbox'
 
 export const Route = createFileRoute('/dashboard/import')({
   component: RouteComponent,
@@ -40,6 +46,50 @@ export const Route = createFileRoute('/dashboard/import')({
 
 function RouteComponent() {
   const [isPending, startTransition] = useTransition()
+
+  //States for the bulk import
+  const [discoveredLinks, setDiscoveredLinks] = useState<
+    Array<SearchResultWeb>
+  >([])
+  const [selectedLinks, setSelectedLinks] = useState<Set<string>>(new Set())
+
+  const toggleSelectLink = (url: string) => {
+    const newSelected = new Set(selectedLinks)
+    if (newSelected.has(url)) {
+      newSelected.delete(url)
+    } else {
+      newSelected.add(url)
+    }
+    setSelectedLinks(newSelected)
+  }
+
+  const toggleSelectAll = () => {
+    if (selectedLinks.size === discoveredLinks.length) {
+      setSelectedLinks(new Set())
+    } else {
+      setSelectedLinks(new Set(discoveredLinks.map((l) => l.url)))
+    }
+  }
+
+  const handleBulkImport = async () => {
+    const urlsToScrape = Array.from(selectedLinks)
+    if (urlsToScrape.length === 0) {
+      toast.error('Please select at least one URL')
+      return
+    }
+
+    startTransition(async () => {
+      try {
+        await Promise.all(
+          urlsToScrape.map((url) => scrapeUrlFn({ data: { url } })),
+        )
+        toast.success(`Successfully queued ${urlsToScrape.length} imports`)
+        setSelectedLinks(new Set())
+      } catch (error) {
+        toast.error('Failed to import some pages')
+      }
+    })
+  }
 
   const form = useForm({
     defaultValues: {
@@ -50,8 +100,8 @@ function RouteComponent() {
     },
     onSubmit: async ({ value }) => {
       startTransition(async () => {
-        await scrapeUrlFn({data:value})
-        toast.success("URL scraped successfully!")
+        await scrapeUrlFn({ data: value })
+        toast.success('URL scraped successfully!')
       })
     },
   })
@@ -66,7 +116,11 @@ function RouteComponent() {
     },
     onSubmit: async ({ value }) => {
       startTransition(async () => {
-        console.log('Values: ', value)
+        console.log(value)
+        const data = await mapUrlFn({ data: value })
+
+        setDiscoveredLinks(data)
+        console.log('Discovered Links:', data)
       })
     },
   })
@@ -398,6 +452,159 @@ function RouteComponent() {
                         </Button>
                       </FieldGroup>
                     </form>
+
+                    {/* Discovered URLS */}
+                    {discoveredLinks.length > 0 && (
+                      <div className="space-y-6 mt-10 pt-8 border-t border-white/5 animate-in fade-in slide-in-from-bottom-4 duration-700">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 px-1">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <div className="p-1.5 bg-orange-500/10 rounded-md">
+                                <Sparkles className="size-3.5 text-orange-400" />
+                              </div>
+                              <h3 className="text-sm font-bold text-zinc-100 tracking-tight">
+                                Analysis Complete
+                              </h3>
+                              <Badge
+                                variant="outline"
+                                className="text-[14px] h-4.5 bg-zinc-900 text-zinc-400 border-white/5 font-mono"
+                              >
+                                {discoveredLinks.length} results
+                              </Badge>
+                            </div>
+                            <p className="text-[11px] text-zinc-500">
+                              Select the pages you want to import to your
+                              knowledge base.
+                            </p>
+                          </div>
+
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={toggleSelectAll}
+                            className="h-9 px-4 text-xs font-semibold bg-zinc-900 border-white/5 hover:bg-zinc-800 transition-all cursor-pointer group"
+                          >
+                            {selectedLinks.size === discoveredLinks.length ? (
+                              'Deselect All'
+                            ) : (
+                              <>
+                                <Check className="size-3 mr-2 text-zinc-500 group-hover:text-purple-400" />
+                                Select All results
+                              </>
+                            )}
+                          </Button>
+                        </div>
+
+                        <ScrollArea className="h-105 rounded-2xl border border-white/5 bg-zinc-950/20 backdrop-blur-md overflow-hidden relative shadow-inner">
+                          <div className="p-3 grid gap-2.5">
+                            {discoveredLinks.map((link) => {
+                              const isSelected = selectedLinks.has(link.url)
+                              return (
+                                <Label
+                                  key={link.url}
+                                  className={cn(
+                                    'group relative flex cursor-pointer items-start gap-4 rounded-xl p-4 border transition-all duration-300',
+                                    isSelected
+                                      ? 'bg-purple-500/5 border-purple-500/40 shadow-[0_0_20px_rgba(168,85,247,0.05)]'
+                                      : 'bg-zinc-900/40 border-white/3 hover:border-white/10 hover:bg-zinc-900/60',
+                                  )}
+                                >
+                                  <div className="mt-0.5 relative flex items-center justify-center">
+                                    <Checkbox
+                                      checked={isSelected}
+                                      onCheckedChange={() =>
+                                        toggleSelectLink(link.url)
+                                      }
+                                      className={cn(
+                                        'size-5 rounded-md transition-all duration-300 border-zinc-700',
+                                        isSelected &&
+                                          'bg-purple-500 border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]',
+                                      )}
+                                    />
+                                  </div>
+
+                                  <div className="flex-1 min-w-0 space-y-1.5">
+                                    <div className="flex items-center justify-between gap-4">
+                                      <p
+                                        className={cn(
+                                          'text-sm font-semibold truncate transition-colors',
+                                          isSelected
+                                            ? 'text-white'
+                                            : 'text-zinc-200 group-hover:text-white',
+                                        )}
+                                      >
+                                        {link.title ?? 'Untitled Page'}
+                                      </p>
+                                      <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <a
+                                          href={link.url}
+                                          target="_blank"
+                                          rel="noreferrer"
+                                          className="p-1 px-1.5 rounded-md bg-zinc-950/50 text-zinc-500 hover:text-white border border-white/5 text-[10px] font-mono flex items-center gap-1"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          Visit
+                                          <ExternalLink className="size-2.5" />
+                                        </a>
+                                      </div>
+                                    </div>
+
+                                    {link.description && (
+                                      <p className="text-[11px] text-zinc-500 line-clamp-1 leading-relaxed">
+                                        {link.description}
+                                      </p>
+                                    )}
+
+                                    <div className="flex items-center gap-2">
+                                      <div className="px-1.5 py-0.5 rounded bg-zinc-950/50 border border-white/5">
+                                        <p className="text-[9px] font-mono text-zinc-400 group-hover:text-zinc-300 transition-colors truncate max-w-75 sm:max-w-none">
+                                          {link.url}
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </Label>
+                              )
+                            })}
+                          </div>
+                          <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-zinc-950 to-transparent pointer-events-none" />
+                        </ScrollArea>
+
+                        <div className="pt-2">
+                          <Button
+                            onClick={handleBulkImport}
+                            disabled={isPending || selectedLinks.size === 0}
+                            className={cn(
+                              'w-full h-12 text-sm font-bold tracking-tight rounded-xl transition-all duration-500 relative group overflow-hidden',
+                              selectedLinks.size > 0
+                                ? 'bg-white text-zinc-950 hover:scale-[1.01] active:scale-[0.99] shadow-[0_0_30px_rgba(255,255,255,0.1)]'
+                                : 'bg-zinc-800 text-zinc-500',
+                            )}
+                          >
+                            {isPending ? (
+                              <div className="flex items-center gap-2">
+                                <Loader2 className="size-4 animate-spin" />
+                                Importing {selectedLinks.size} pages...
+                              </div>
+                            ) : (
+                              <div className="flex items-center justify-center gap-2 relative z-10">
+                                <span>
+                                  Import {selectedLinks.size || 'Discovered'}{' '}
+                                  Knowledge Assets
+                                </span>
+                                {selectedLinks.size > 0 && (
+                                  <ArrowRight className="size-4 group-hover:translate-x-1 transition-transform" />
+                                )}
+                              </div>
+                            )}
+                            {selectedLinks.size > 0 && !isPending && (
+                              <div className="absolute inset-0 bg-linear-to-r from-transparent via-zinc-200/5 to-transparent -translate-x-full group-hover:animate-shimmer" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               </TabsContent>
@@ -471,25 +678,6 @@ function RouteComponent() {
                   </div>
                 </div>
               </div>
-            </div>
-
-            <div className="p-6 bg-linear-to-br from-indigo-500/10 to-purple-500/10 rounded-2xl border border-white/5 relative overflow-hidden group">
-              <div className="absolute -right-4 -bottom-4 size-24 bg-white/5 blur-3xl rounded-full" />
-              <h4 className="flex items-center gap-2 text-sm font-medium text-zinc-300 mb-2">
-                <Sparkles className="size-4 text-yellow-400" />
-                Crawler Capability
-              </h4>
-              <p className="text-xs text-zinc-500 mb-4 leading-relaxed">
-                You are currently using the Advanced Scraper engine v2.0 with
-                dynamic proxy rotation enabled.
-              </p>
-              <Button
-                variant="outline"
-                size="sm"
-                className="w-full text-xs h-8 cursor-pointer border-white/10 hover:bg-white/5 text-zinc-300"
-              >
-                View Scraper Docs
-              </Button>
             </div>
           </div>
         </div>
