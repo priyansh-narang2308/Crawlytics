@@ -21,19 +21,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import z from 'zod'
+import { ItemStatus } from '@/generated/prisma/enums'
+import { zodValidator } from '@tanstack/zod-adapter'
+
+const itemsSearchSchema = z.object({
+  q: z.string().default(''),
+  status: z.union([z.literal('all'), z.nativeEnum(ItemStatus)]).default('all'),
+})
 
 export const Route = createFileRoute('/dashboard/items/')({
   component: RouteComponent,
   loader: async () => {
     return await getItemsFn()
   },
+  validateSearch: zodValidator(itemsSearchSchema),
 })
 
 function RouteComponent() {
   const data = Route.useLoaderData()
+  const { q, status } = Route.useSearch()
+  const navigate = Route.useNavigate()
   const [open, setOpen] = React.useState(false)
-  const [searchQuery, setSearchQuery] = React.useState('')
-  const [statusFilter, setStatusFilter] = React.useState('all')
 
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -49,17 +58,30 @@ function RouteComponent() {
   const filteredData = React.useMemo(() => {
     return data.filter((item) => {
       const matchesSearch =
-        !searchQuery ||
-        (item.title?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-        (item.url?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
-        (item.author?.toLowerCase() || '').includes(searchQuery.toLowerCase())
+        !q ||
+        (item.title?.toLowerCase() || '').includes(q.toLowerCase()) ||
+        (item.url?.toLowerCase() || '').includes(q.toLowerCase()) ||
+        (item.author?.toLowerCase() || '').includes(q.toLowerCase())
 
-      const matchesStatus =
-        statusFilter === 'all' || item.status === statusFilter
+      const matchesStatus = status === 'all' || item.status === status
 
       return matchesSearch && matchesStatus
     })
-  }, [data, searchQuery, statusFilter])
+  }, [data, q, status])
+
+  const setStatusFilter = (newStatus: string) => {
+    navigate({
+      search: (old) => ({ ...old, status: newStatus as any }),
+      replace: true,
+    })
+  }
+
+  const setSearchQuery = (newQuery: string) => {
+    navigate({
+      search: (old) => ({ ...old, q: newQuery }),
+      replace: true,
+    })
+  }
 
   return (
     <div className="flex-1 w-full flex flex-col min-h-screen bg-transparent p-4 lg:p-8 animate-in fade-in duration-1000">
@@ -95,7 +117,7 @@ function RouteComponent() {
               </div>
             </div>
 
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <Select value={status} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-full md:w-48 h-11 cursor-pointer bg-zinc-900/60 border-white/10 rounded-xl text-[13px] font-medium text-zinc-400 focus:ring-0 focus:ring-offset-0 hover:border-white/20 transition-all backdrop-blur-xl">
                 <div className="flex items-center gap-2">
                   <ListFilter className="size-3.5" />
@@ -118,7 +140,7 @@ function RouteComponent() {
           >
             <CommandInput
               placeholder="Type to search..."
-              value={searchQuery}
+              value={q}
               onValueChange={setSearchQuery}
               className="h-14 text-base"
             />
@@ -260,6 +282,18 @@ function RouteComponent() {
               </Card>
             ))}
           </div>
+
+          {filteredData.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-32 animate-in slide-in-from-bottom-5 duration-700">
+              <div className="size-20 rounded-4xl bg-zinc-900 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
+                <Search className="size-8 text-zinc-800" />
+              </div>
+              <p className="text-lg font-black text-white">No items found</p>
+              <p className="text-zinc-500 text-sm mt-1 font-medium italic">
+                Try adjusting your filters or search query.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
