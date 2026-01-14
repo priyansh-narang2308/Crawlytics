@@ -40,8 +40,8 @@ Crawlytics is built on the cutting edge of the modern web ecosystem:
 
 1. **Clone the Hub**
    ```bash
-   git clone https://github.com/yourusername/crawlytics.git
-   cd crawlytics
+   git clone https://github.com/yourusername/Crawlytics.git
+   cd Crawlytics
    ```
 
 2. **Install Dependencies**
