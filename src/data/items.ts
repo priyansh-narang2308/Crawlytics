@@ -8,6 +8,7 @@ import {
 import { prisma } from '@/db'
 import z from 'zod'
 import { authFnMiddleware } from '@/middlewares/auth'
+import { notFound } from '@tanstack/react-router'
 
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
@@ -179,4 +180,23 @@ export const getItemsFn = createServerFn({ method: 'GET' })
     })
 
     return items
+  })
+
+// for infivisual item
+export const getItemById = createServerFn({ method: 'GET' })
+  .middleware([authFnMiddleware])
+  .inputValidator(z.object({ id: z.string() }))
+  .handler(async ({ context, data }) => {
+    const item = await prisma.savedItem.findUnique({
+      where: {
+        userId: context.session.user.id,
+        id: data.id,
+      },
+    })
+
+    if (!item) {
+      throw notFound()
+    }
+
+    return item
   })

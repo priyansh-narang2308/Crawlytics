@@ -4,6 +4,8 @@
 
 @custom-variant dark (&:is(.dark *));
 
+@source "../node_modules/streamdown/dist/*.js";
+
 body {
   @apply m-0;
   font-family:
