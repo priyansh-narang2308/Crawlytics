@@ -21,6 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import z from 'zod'
 import { ItemStatus } from '@/generated/prisma/enums'
 import { zodValidator } from '@tanstack/zod-adapter'
@@ -32,14 +33,35 @@ const itemsSearchSchema = z.object({
 
 export const Route = createFileRoute('/dashboard/items/')({
   component: RouteComponent,
-  loader: async () => {
-    return await getItemsFn()
-  },
+  loader: () => ({ itemsPromise: getItemsFn() }),
   validateSearch: zodValidator(itemsSearchSchema),
 })
 
 function RouteComponent() {
-  const data = Route.useLoaderData()
+  const { itemsPromise } = Route.useLoaderData()
+  const [data, setData] = React.useState<any[]>([])
+  const [isLoading, setIsLoading] = React.useState(true)
+
+  React.useEffect(() => {
+    let mounted = true
+    setIsLoading(true)
+
+    itemsPromise
+      .then((res) => {
+        if (!mounted) return
+        setData(res ?? [])
+      })
+      .catch((err) => {
+        console.error('Failed to load items', err)
+      })
+      .finally(() => {
+        if (mounted) setIsLoading(false)
+      })
+
+    return () => {
+      mounted = false
+    }
+  }, [itemsPromise])
   const { q, status } = Route.useSearch()
   const navigate = Route.useNavigate()
   const [open, setOpen] = React.useState(false)
@@ -186,104 +208,106 @@ function RouteComponent() {
           </CommandDialog>
 
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
-            {filteredData.map((item) => (
-              <Card
-                key={item.id}
-                className="group flex flex-col overflow-hidden bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60 transition-all duration-500 shadow-2xl p-0 gap-0"
-              >
-                <Link
-                  to="/dashboard"
-                  className="block relative overflow-hidden aspect-video border-b border-white/5"
+            {isLoading
+              ? Array.from({ length: 6 }).map((_, i) => <ItemSkeleton key={i} />)
+              : filteredData.map((item) => (
+                <Card
+                  key={item.id}
+                  className="group flex flex-col overflow-hidden bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60 transition-all duration-500 shadow-2xl p-0 gap-0"
                 >
-                  {item.ogImage ? (
-                    <img
-                      src={item.ogImage}
-                      alt={item.title ?? 'Article Thumbnail'}
-                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                    />
-                  ) : (
-                    <div className="h-full w-full bg-zinc-950 flex items-center justify-center">
-                      <FileText className="size-12 text-zinc-900" />
-                    </div>
-                  )}
+                  <Link
+                    to="/dashboard"
+                    className="block relative overflow-hidden aspect-video border-b border-white/5"
+                  >
+                    {item.ogImage ? (
+                      <img
+                        src={item.ogImage}
+                        alt={item.title ?? 'Article Thumbnail'}
+                        className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
+                    ) : (
+                      <div className="h-full w-full bg-zinc-950 flex items-center justify-center">
+                        <FileText className="size-12 text-zinc-900" />
+                      </div>
+                    )}
 
-                  <div className="absolute top-4 left-4">
-                    <div
-                      className={cn(
-                        'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl border',
-                        item.status === 'COMPLETED'
-                          ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
-                          : item.status === 'PROCESSING' ||
+                    <div className="absolute top-4 left-4">
+                      <div
+                        className={cn(
+                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl border',
+                          item.status === 'COMPLETED'
+                            ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
+                            : item.status === 'PROCESSING' ||
                               item.status === 'PENDING'
-                            ? 'bg-yellow-400 text-zinc-950 border-yellow-300 animate-pulse'
-                            : 'bg-rose-500 text-zinc-950 border-rose-500',
-                      )}
-                    >
-                      {item.status}
+                              ? 'bg-yellow-400 text-zinc-950 border-yellow-300 animate-pulse'
+                              : 'bg-rose-500 text-zinc-950 border-rose-500',
+                        )}
+                      >
+                        {item.status}
+                      </div>
+                    </div>
+                  </Link>
+
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-start justify-between gap-6">
+                      <h3 className="text-xl font-bold leading-tight group-hover:text-orange-400 transition-colors line-clamp-2">
+                        {item.title || item.url}
+                      </h3>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-9 shrink-0 rounded-xl bg-zinc-950/50 border border-white/5 text-zinc-500 hover:text-white hover:border-white/20 transition-all"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          navigator.clipboard.writeText(item.url)
+                          toast.success('URL copied')
+                        }}
+                      >
+                        <Copy className="size-4" />
+                      </Button>
                     </div>
                   </div>
-                </Link>
 
-                <div className="p-6 flex flex-col flex-1">
-                  <div className="flex items-start justify-between gap-6">
-                    <h3 className="text-xl font-bold leading-tight group-hover:text-orange-400 transition-colors line-clamp-2">
-                      {item.title || item.url}
-                    </h3>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="size-9 shrink-0 rounded-xl bg-zinc-950/50 border border-white/5 text-zinc-500 hover:text-white hover:border-white/20 transition-all"
-                      onClick={(e) => {
-                        e.preventDefault()
-                        navigator.clipboard.writeText(item.url)
-                        toast.success('URL copied')
-                      }}
-                    >
-                      <Copy className="size-4" />
-                    </Button>
-                  </div>
-                </div>
+                  <div className="px-6 pb-6 mt-auto">
+                    <div className="flex items-center justify-between pt-5 border-t border-white/5">
+                      <div className="flex items-center gap-2 text-xs text-zinc-400 font-bold truncate">
+                        {item.author && (
+                          <span className="truncate max-w-30">{item.author}</span>
+                        )}
+                        {item.author && item.publishedAt && (
+                          <span className="text-zinc-800">•</span>
+                        )}
+                        {item.publishedAt && (
+                          <span>
+                            {new Date(item.publishedAt).toLocaleDateString(
+                              undefined,
+                              {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              },
+                            )}
+                          </span>
+                        )}
+                      </div>
 
-                <div className="px-6 pb-6 mt-auto">
-                  <div className="flex items-center justify-between pt-5 border-t border-white/5">
-                    <div className="flex items-center gap-2 text-xs text-zinc-400 font-bold truncate">
-                      {item.author && (
-                        <span className="truncate max-w-30">{item.author}</span>
-                      )}
-                      {item.author && item.publishedAt && (
-                        <span className="text-zinc-800">•</span>
-                      )}
-                      {item.publishedAt && (
-                        <span>
-                          {new Date(item.publishedAt).toLocaleDateString(
-                            undefined,
-                            {
-                              month: 'short',
-                              day: 'numeric',
-                              year: 'numeric',
-                            },
-                          )}
-                        </span>
-                      )}
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] font-black tracking-widest text-zinc-500 hover:text-white transition-all flex items-center gap-1.5 group/link"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        SOURCE
+                        <ExternalLink className="size-3.5 transition-transform group-hover/link:translate-x-0.5" />
+                      </a>
                     </div>
-
-                    <a
-                      href={item.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="text-[10px] font-black tracking-widest text-zinc-500 hover:text-white transition-all flex items-center gap-1.5 group/link"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      SOURCE
-                      <ExternalLink className="size-3.5 transition-transform group-hover/link:translate-x-0.5" />
-                    </a>
                   </div>
-                </div>
-              </Card>
-            ))}
+                </Card>
+              ))}
           </div>
 
-          {filteredData.length === 0 && (
+          {!isLoading && filteredData.length === 0 && (
             <div className="flex flex-col items-center justify-center py-32 animate-in slide-in-from-bottom-5 duration-700">
               <div className="size-20 rounded-4xl bg-zinc-900 border border-white/5 flex items-center justify-center mb-6 shadow-2xl">
                 <Search className="size-8 text-zinc-800" />
@@ -297,5 +321,25 @@ function RouteComponent() {
         </div>
       </div>
     </div>
+  )
+}
+
+function ItemSkeleton() {
+  return (
+    <Card className="flex flex-col overflow-hidden bg-zinc-900/30 border-white/5 shadow-2xl p-0 gap-0">
+      <Skeleton className="aspect-video w-full rounded-none" />
+      <div className="p-6 space-y-4">
+        <div className="flex items-start justify-between gap-6">
+          <Skeleton className="h-8 w-full rounded-lg" />
+          <Skeleton className="size-9 rounded-xl shrink-0" />
+        </div>
+      </div>
+      <div className="px-6 pb-6 mt-auto">
+        <div className="flex items-center justify-between pt-5 border-t border-white/5">
+          <Skeleton className="h-4 w-32 rounded-full" />
+          <Skeleton className="h-3 w-12 rounded-full" />
+        </div>
+      </div>
+    </Card>
   )
 }
