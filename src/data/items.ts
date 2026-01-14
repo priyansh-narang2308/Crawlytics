@@ -122,7 +122,7 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
           ],
           location: { country: 'US', languages: ['en'] },
           onlyMainContent: true,
-          proxy:"auto"
+          proxy: 'auto',
         })
 
         // Ftech it from the schemas
@@ -140,7 +140,7 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
           }
         }
 
-        const updatedItem = await prisma.savedItem.update({
+        await prisma.savedItem.update({
           where: {
             id: item.id,
           },
@@ -153,10 +153,8 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
             status: 'COMPLETED',
           },
         })
-
-        return updatedItem
       } catch (error) {
-        const failedItem = await prisma.savedItem.update({
+        await prisma.savedItem.update({
           where: {
             id: item.id,
           },
@@ -164,8 +162,6 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
             status: 'FAILED',
           },
         })
-
-        return failedItem
       }
     }
   })

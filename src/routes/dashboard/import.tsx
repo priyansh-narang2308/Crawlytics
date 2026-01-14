@@ -34,7 +34,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { cn } from '@/lib/utils'
 import { importBulkSchema, importSingleSchema } from '@/schemas/import'
-import { mapUrlFn, scrapeUrlFn } from '@/data/items'
+import { bulkScrapeUrlsFn, mapUrlFn, scrapeUrlFn } from '@/data/items'
 import { toast } from 'sonner'
 import { type SearchResultWeb } from '@mendable/firecrawl-js'
 import { Label } from '@/components/ui/label'
@@ -46,6 +46,7 @@ export const Route = createFileRoute('/dashboard/import')({
 
 function RouteComponent() {
   const [isPending, startTransition] = useTransition()
+  const [bulkIsPending, startBulkTransition] = useTransition()
 
   //States for the bulk import
   const [discoveredLinks, setDiscoveredLinks] = useState<
@@ -71,23 +72,17 @@ function RouteComponent() {
     }
   }
 
-  const handleBulkImport = async () => {
-    const urlsToScrape = Array.from(selectedLinks)
-    if (urlsToScrape.length === 0) {
-      toast.error('Please select at least one URL')
-      return
-    }
-
-    startTransition(async () => {
-      try {
-        await Promise.all(
-          urlsToScrape.map((url) => scrapeUrlFn({ data: { url } })),
-        )
-        toast.success(`Successfully queued ${urlsToScrape.length} imports`)
-        setSelectedLinks(new Set())
-      } catch (error) {
-        toast.error('Failed to import some pages')
+  const handleBulkImport = () => {
+    startBulkTransition(async () => {
+      const urlsToScrape = Array.from(selectedLinks)
+      if (urlsToScrape.length === 0) {
+        toast.error('Please select at least one URL')
+        return
       }
+
+      await bulkScrapeUrlsFn({ data: { urls: urlsToScrape } })
+
+      toast.success(`Successfully queued ${urlsToScrape.length} imports`)
     })
   }
 
@@ -574,15 +569,15 @@ function RouteComponent() {
                         <div className="pt-2">
                           <Button
                             onClick={handleBulkImport}
-                            disabled={isPending || selectedLinks.size === 0}
+                            disabled={bulkIsPending || selectedLinks.size === 0}
                             className={cn(
-                              'w-full h-12 text-sm font-bold tracking-tight rounded-xl transition-all duration-500 relative group overflow-hidden',
+                              'w-full h-12 text-sm font-bold tracking-tight rounded-xl transition-all duration-500 relative group overflow-hidden cursor-pointer',
                               selectedLinks.size > 0
                                 ? 'bg-white text-zinc-950 hover:scale-[1.01] active:scale-[0.99] shadow-[0_0_30px_rgba(255,255,255,0.1)]'
                                 : 'bg-zinc-800 text-zinc-500',
                             )}
                           >
-                            {isPending ? (
+                            {bulkIsPending ? (
                               <div className="flex items-center gap-2">
                                 <Loader2 className="size-4 animate-spin" />
                                 Importing {selectedLinks.size} pages...
