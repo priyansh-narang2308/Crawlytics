@@ -1,5 +1,5 @@
-import { buttonVariants, Button } from '@/components/ui/button'
-import { getItemById } from '@/data/items'
+import { Button, buttonVariants } from '@/components/ui/button'
+import { getItemById, saveSummaryFn } from '@/data/items'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import {
   ArrowLeft,
@@ -24,6 +24,8 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible'
 import { MessageResponse } from '@/components/ai-elements/message'
+
+import { useCompletion } from '@ai-sdk/react'
 
 export const Route = createFileRoute('/dashboard/items/$itemId')({
   component: RouteComponent,
@@ -51,6 +53,29 @@ function RouteComponent() {
   const [item, setItem] = React.useState<any>(null)
   const [isLoading, setIsLoading] = React.useState(true)
   const [isContentOpen, setIsContentOpen] = React.useState(false)
+
+  const {
+    completion,
+    complete,
+    isLoading: isAIProgress,
+  } = useCompletion({
+    api: '/api/ai/summary',
+    streamProtocol: 'text',
+    body: {
+      itemId: item?.id,
+      prompt: item?.content,
+    },
+    onFinish: async (_, completion) => {
+      if (item?.id) {
+        await saveSummaryFn({ data: { id: item.id, summary: completion } })
+        setItem((prev: any) => ({ ...prev, summary: completion }))
+        toast.success('Summary synchronized')
+      }
+    },
+    onError: (error) => {
+      toast.error(error.message)
+    },
+  })
 
   React.useEffect(() => {
     let mounted = true
@@ -103,7 +128,6 @@ function RouteComponent() {
   return (
     <div className="flex-1 w-full h-[calc(100vh-4.1rem)] bg-transparent overflow-y-auto custom-scrollbar p-4 lg:p-8 animate-in fade-in duration-500">
       <div className="mx-auto w-full max-w-7xl flex flex-col space-y-8">
-        {/* Header Actions - Pinned */}
         <div className="flex items-center justify-between shrink-0 sticky top-0 z-30 py-2 bg-[#09090b]/80 backdrop-blur-2xl -mx-4 px-4 rounded-b-2xl">
           <Link
             to="/dashboard/items"
@@ -143,9 +167,7 @@ function RouteComponent() {
           </div>
         </div>
 
-        {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          {/* Left Column: Title, Labels, Summary, Content */}
           <div className="lg:col-span-8 flex flex-col space-y-10 min-w-0">
             <div className="space-y-6">
               <div className="flex items-center gap-3">
@@ -190,17 +212,32 @@ function RouteComponent() {
             </div>
 
             <section className="space-y-6 p-8 rounded-4xl bg-emerald-500/5 border border-emerald-500/10 relative overflow-hidden group">
-              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:scale-110 transition-transform duration-700">
-                <Sparkles className="size-20 text-emerald-500" />
-              </div>
-              <div className="flex items-center gap-2 text-emerald-500 relative">
-                <Sparkles className="size-4" />
-                <h2 className="text-sm font-semibold">Executive Summary</h2>
+              <div className="flex items-center justify-between gap-4 text-emerald-500 relative">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="size-6" />
+                  <h2 className="text-lg font-semibold">Executive Summary</h2>
+                </div>
+                {!item.summary && !completion && !isAIProgress && (
+                  <Button
+                    onClick={() => complete('')}
+                    variant="outline"
+                    className="rounded-2xl border-orange-500/20 bg-orange-500/10 text-orange-400 hover:bg-orange-500/20 hover:text-orange-300 transition-all font-semibold text-[15px] px-6 h-11 shadow-2xl shadow-emerald-500/20 cursor-pointer group"
+                  >
+                    <Sparkles className="size-4 mr-2 transition-transform group-hover:scale-125 group-hover:rotate-12" />
+                    Generate Summary
+                  </Button>
+                )}
               </div>
               <div className="text-zinc-200 leading-relaxed text-lg lg:text-xl font-medium selection:bg-emerald-500/30 break-all relative">
-                {item.summary || (
-                  <p className="text-zinc-500 italic text-base">
-                    Summary in progress...
+                {completion || item.summary ? (
+                  <MessageResponse>
+                    {completion || item.summary}
+                  </MessageResponse>
+                ) : (
+                  <p className="text-zinc-300  text-lg">
+                    {isAIProgress
+                      ? 'Analysis in progress...'
+                      : 'No summary generated for this asset yet.'}
                   </p>
                 )}
               </div>

@@ -1,4 +1,5 @@
 import { prisma } from '@/db'
+import { auth } from '@/lib/auth'
 import { openrouter } from '@/lib/open-router'
 import { createFileRoute } from '@tanstack/react-router'
 import { streamText } from 'ai'
@@ -6,7 +7,15 @@ import { streamText } from 'ai'
 export const Route = createFileRoute('/api/ai/summary')({
   server: {
     handlers: {
-      POST: async ({ request, context }) => {
+      POST: async ({ request }) => {
+        const session = await auth.api.getSession({
+          headers: request.headers,
+        })
+
+        if (!session) {
+          return new Response('Unauthorized', { status: 401 })
+        }
+
         const { itemId, prompt } = await request.json()
 
         if (!itemId || !prompt) {
@@ -16,7 +25,7 @@ export const Route = createFileRoute('/api/ai/summary')({
         const item = await prisma.savedItem.findUnique({
           where: {
             id: itemId,
-            userId: context?.session.user.id,
+            userId: session.user.id,
           },
         })
 
@@ -26,7 +35,7 @@ export const Route = createFileRoute('/api/ai/summary')({
 
         // The stream summary
         const result = streamText({
-          model: openrouter.chat('z-ai/glm-4.5-air:free'),
+          model: openrouter.chat('xiaomi/mimo-v2-flash:free'),
           system: `You are a helpful assistant that creates concise,
 informative summaries of web content.
 
