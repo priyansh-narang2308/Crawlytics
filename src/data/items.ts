@@ -4,6 +4,7 @@ import {
   extractSchema,
   importBulkSchema,
   importSingleSchema,
+  searchSchema,
 } from '@/schemas/import'
 import { prisma } from '@/db'
 import z from 'zod'
@@ -11,6 +12,7 @@ import { authFnMiddleware } from '@/middlewares/auth'
 import { notFound } from '@tanstack/react-router'
 import { generateText } from 'ai'
 import { openrouter } from '@/lib/open-router'
+import { SearchResultWeb } from '@mendable/firecrawl-js'
 
 export const scrapeUrlFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
@@ -247,4 +249,22 @@ Example: technology, programming, web development, javascript`,
     })
 
     return item
+  })
+
+export const searchWebFn = createServerFn({ method: 'POST' })
+  .middleware([authFnMiddleware])
+  .inputValidator(searchSchema)
+  .handler(async ({ data }) => {
+    const result = await firecrawl.search(data.query, {
+      limit: 12,
+      location: 'India',
+      tbs: 'qdr:y',
+    })
+
+    return result.web?.map((item) => ({
+      url: (item as SearchResultWeb).url,
+      title: (item as SearchResultWeb).title,
+      description: (item as SearchResultWeb).description,
+    })) as SearchResultWeb[]
+
   })

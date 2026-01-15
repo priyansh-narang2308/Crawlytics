@@ -231,7 +231,7 @@ function RouteComponent() {
                     <Link
                       to={`/dashboard/items/$itemId`}
                       params={{
-                        //using the params as typesafe its coming
+                        //using the params as typesafe its co ming
                         itemId: item.id,
                       }}
                       className="block relative overflow-hidden aspect-video border-b border-white/5"
@@ -267,9 +267,17 @@ function RouteComponent() {
 
                     <div className="p-6 flex flex-col flex-1">
                       <div className="flex items-start justify-between gap-6">
-                        <h3 className="text-xl font-bold leading-tight group-hover:text-orange-400 transition-colors line-clamp-2">
-                          {item.title || item.url}
-                        </h3>
+                        <Link
+                          to={`/dashboard/items/$itemId`}
+                          params={{
+                            itemId: item.id,
+                          }}
+                          className="flex-1 min-w-0"
+                        >
+                          <h3 className="text-xl font-bold leading-tight group-hover:text-emerald-400 transition-colors line-clamp-2">
+                            {item.title || item.url}
+                          </h3>
+                        </Link>
                         <Button
                           variant="ghost"
                           size="icon"
