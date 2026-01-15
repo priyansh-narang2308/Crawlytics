@@ -21,7 +21,7 @@ export const authMiddleware = createMiddleware({ type: 'request' }).server(
     // fix for incongnitor
     if (
       !url.password.startsWith('/dashboard') &&
-      !url.password.startsWith('/api')
+      !url.password.startsWith('/api/ai')
     ) {
       return next()
     }
