@@ -15,7 +15,8 @@ import {
 import { Input } from '@/components/ui/input'
 import { searchSchema } from '@/schemas/import'
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Progress } from '@/components/ui/progress'
 import {
   Loader2,
   Search,
@@ -40,9 +41,15 @@ export const Route = createFileRoute('/dashboard/discover')({
 function RouteComponent() {
   const [isPending, startTransition] = useTransition()
   const [bulkIsPending, startBulkTransition] = useTransition()
+  const navigate = useNavigate()
 
   const [searchResults, setSearchResults] = useState<Array<SearchResultWeb>>([])
   const [selectedLinks, setSelectedLinks] = useState<Set<string>>(new Set())
+  const [importProgress, setImportProgress] = useState<{
+    current: number
+    total: number
+    url: string
+  } | null>(null)
 
   const toggleSelectLink = (url: string) => {
     const newSelected = new Set(selectedLinks)
@@ -62,9 +69,48 @@ function RouteComponent() {
         return
       }
 
-      await bulkScrapeUrlsFn({ data: { urls: urlsToScrape } })
-      toast.success(`Successfully queued ${urlsToScrape.length} imports`)
-      setSelectedLinks(new Set())
+      const response = (await bulkScrapeUrlsFn({
+        data: { urls: urlsToScrape },
+      })) as unknown as Response
+
+      if (!response.body) return
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n').filter((l) => l.trim())
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line)
+            if (data.status === 'done') {
+              toast.success(`Successfully imported ${urlsToScrape.length} assets`)
+              setSelectedLinks(new Set())
+              setImportProgress(null)
+              navigate({ to: '/dashboard/items' })
+              return
+            }
+            if (
+              data.status === 'processing' ||
+              data.status === 'completed' ||
+              data.status === 'failed'
+            ) {
+              setImportProgress({
+                current: data.current,
+                total: data.total,
+                url: data.url,
+              })
+            }
+          } catch (e) {
+            console.error('Error parsing stream:', e)
+          }
+        }
+      }
     })
   }
 
@@ -299,7 +345,26 @@ function RouteComponent() {
                 </ScrollArea>
 
                 {searchResults.length > 0 && (
-                  <div className="pt-4 mt-4 border-t border-white/5">
+                  <div className="pt-4 mt-4 border-t border-white/5 space-y-4">
+                    {bulkIsPending && importProgress && (
+                      <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                        <div className="flex justify-between text-[11px] font-medium transition-all">
+                          <span className="text-zinc-400 truncate max-w-60">
+                            {importProgress.url}
+                          </span>
+                          <span className="text-emerald-500 font-bold shrink-0">
+                            {importProgress.current} / {importProgress.total}
+                          </span>
+                        </div>
+                        <Progress
+                          value={
+                            (importProgress.current / importProgress.total) *
+                            100
+                          }
+                          className="h-1.5 bg-zinc-800"
+                        />
+                      </div>
+                    )}
                     <Button
                       onClick={handleBulkImport}
                       disabled={bulkIsPending || selectedLinks.size === 0}

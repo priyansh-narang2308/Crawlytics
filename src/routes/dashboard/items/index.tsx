@@ -221,117 +221,114 @@ function RouteComponent() {
           <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
             {isLoading
               ? Array.from({ length: 6 }).map((_, i) => (
-                  <ItemSkeleton key={i} />
-                ))
+                <ItemSkeleton key={i} />
+              ))
               : filteredData.map((item) => (
-                  <Card
-                    key={item.id}
-                    className="group flex flex-col overflow-hidden bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60 transition-all duration-500 shadow-2xl p-0 gap-0"
+                <Card
+                  key={item.id}
+                  className="group flex flex-col overflow-hidden bg-zinc-900/30 border-white/5 hover:border-white/10 hover:bg-zinc-900/60 transition-all duration-500 shadow-2xl p-0 gap-0"
+                >
+                  <Link
+                    to={`/dashboard/items/$itemId`}
+                    params={{
+                      //using the params as typesafe its co ming
+                      itemId: item.id,
+                    }}
+                    className="block relative overflow-hidden aspect-video border-b border-white/5"
                   >
-                    <Link
-                      to={`/dashboard/items/$itemId`}
-                      params={{
-                        //using the params as typesafe its co ming
-                        itemId: item.id,
-                      }}
-                      className="block relative overflow-hidden aspect-video border-b border-white/5"
-                    >
-                      {item.ogImage ? (
-                        <img
-                          src={item.ogImage}
-                          alt={item.title ?? 'Article Thumbnail'}
-                          className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                      ) : (
-                        <div className="h-full w-full bg-zinc-950 flex items-center justify-center">
-                          <FileText className="size-12 text-zinc-900" />
-                        </div>
-                      )}
+                    <img
+                      src={
+                        item.ogImage ??
+                        'https://img.freepik.com/free-photo/vivid-blurred-colorful-background_58702-2563.jpg?semt=ais_hybrid&w=740&q=80'
+                      }
+                      alt={item.title ?? 'Article Thumbnail'}
+                      className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                    />
 
-                      <div className="absolute top-4 left-4">
-                        <div
-                          className={cn(
-                            'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl border',
-                            item.status === 'COMPLETED'
-                              ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
-                              : item.status === 'PROCESSING' ||
-                                  item.status === 'PENDING'
-                                ? 'bg-yellow-400 text-zinc-950 border-yellow-300 animate-pulse'
-                                : 'bg-rose-500 text-zinc-950 border-rose-500',
-                          )}
-                        >
-                          {item.status}
-                        </div>
-                      </div>
-                    </Link>
-
-                    <div className="p-6 flex flex-col flex-1">
-                      <div className="flex items-start justify-between gap-6">
-                        <Link
-                          to={`/dashboard/items/$itemId`}
-                          params={{
-                            itemId: item.id,
-                          }}
-                          className="flex-1 min-w-0"
-                        >
-                          <h3 className="text-xl font-bold leading-tight group-hover:text-emerald-400 transition-colors line-clamp-2">
-                            {item.title || item.url}
-                          </h3>
-                        </Link>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="size-9 shrink-0 rounded-xl bg-zinc-950/50 border border-white/5 text-zinc-500 hover:text-white hover:border-white/20 transition-all"
-                          onClick={(e) => {
-                            e.preventDefault()
-                            navigator.clipboard.writeText(item.url)
-                            toast.success('URL copied')
-                          }}
-                        >
-                          <Copy className="size-4" />
-                        </Button>
+                    <div className="absolute top-4 left-4">
+                      <div
+                        className={cn(
+                          'px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-2xl border',
+                          item.status === 'COMPLETED'
+                            ? 'bg-emerald-500 text-zinc-950 border-emerald-400'
+                            : item.status === 'PROCESSING' ||
+                              item.status === 'PENDING'
+                              ? 'bg-yellow-400 text-zinc-950 border-yellow-300 animate-pulse'
+                              : 'bg-rose-500 text-zinc-950 border-rose-500',
+                        )}
+                      >
+                        {item.status}
                       </div>
                     </div>
+                  </Link>
 
-                    <div className="px-6 pb-6 mt-auto">
-                      <div className="flex items-center justify-between pt-5 border-t border-white/5">
-                        <div className="flex items-center gap-2 text-xs text-zinc-400 font-bold truncate">
-                          {item.author && (
-                            <span className="truncate max-w-30">
-                              {item.author}
-                            </span>
-                          )}
-                          {item.author && item.publishedAt && (
-                            <span className="text-zinc-800">•</span>
-                          )}
-                          {item.publishedAt && (
-                            <span>
-                              {new Date(item.publishedAt).toLocaleDateString(
-                                undefined,
-                                {
-                                  month: 'short',
-                                  day: 'numeric',
-                                  year: 'numeric',
-                                },
-                              )}
-                            </span>
-                          )}
-                        </div>
-
-                        <a
-                          href={item.url}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-[10px] font-black tracking-widest text-zinc-500 hover:text-white transition-all flex items-center gap-1.5 group/link"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          SOURCE
-                          <ExternalLink className="size-3.5 transition-transform group-hover/link:translate-x-0.5" />
-                        </a>
-                      </div>
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-start justify-between gap-6">
+                      <Link
+                        to={`/dashboard/items/$itemId`}
+                        params={{
+                          itemId: item.id,
+                        }}
+                        className="flex-1 min-w-0"
+                      >
+                        <h3 className="text-xl font-bold leading-tight group-hover:text-emerald-400 transition-colors line-clamp-2">
+                          {item.title || item.url}
+                        </h3>
+                      </Link>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="size-9 shrink-0 rounded-xl bg-zinc-950/50 border border-white/5 text-zinc-500 hover:text-white hover:border-white/20 transition-all"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          navigator.clipboard.writeText(item.url)
+                          toast.success('URL copied')
+                        }}
+                      >
+                        <Copy className="size-4" />
+                      </Button>
                     </div>
-                  </Card>
-                ))}
+                  </div>
+
+                  <div className="px-6 pb-6 mt-auto">
+                    <div className="flex items-center justify-between pt-5 border-t border-white/5">
+                      <div className="flex items-center gap-2 text-xs text-zinc-400 font-bold truncate">
+                        {item.author && (
+                          <span className="truncate max-w-30">
+                            {item.author}
+                          </span>
+                        )}
+                        {item.author && item.publishedAt && (
+                          <span className="text-zinc-800">•</span>
+                        )}
+                        {item.publishedAt && (
+                          <span>
+                            {new Date(item.publishedAt).toLocaleDateString(
+                              undefined,
+                              {
+                                month: 'short',
+                                day: 'numeric',
+                                year: 'numeric',
+                              },
+                            )}
+                          </span>
+                        )}
+                      </div>
+
+                      <a
+                        href={item.url}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-[10px] font-black tracking-widest text-zinc-500 hover:text-white transition-all flex items-center gap-1.5 group/link"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        SOURCE
+                        <ExternalLink className="size-3.5 transition-transform group-hover/link:translate-x-0.5" />
+                      </a>
+                    </div>
+                  </div>
+                </Card>
+              ))}
           </div>
 
           {!isLoading && filteredData.length === 0 && (

@@ -104,71 +104,113 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
   .middleware([authFnMiddleware])
   .inputValidator(z.object({ urls: z.array(z.string().url()) }))
   .handler(async ({ data, context }) => {
-    for (let i = 0; i < data.urls.length; i++) {
-      const url = data.urls[i]
+    const encoder = new TextEncoder()
+    const urls = data.urls
 
-      const item = await prisma.savedItem.create({
-        data: {
-          url: url,
-          userId: context.session.user.id,
-          status: 'PENDING',
-        },
-      })
+    const stream = new ReadableStream({
+      async start(controller) {
+        for (let i = 0; i < urls.length; i++) {
+          const url = urls[i]
+          
+          // Emit initial processing state
+          controller.enqueue(
+            encoder.encode(
+              JSON.stringify({
+                current: i + 1,
+                total: urls.length,
+                url,
+                status: 'processing',
+              }) + '\n',
+            ),
+          )
 
-      try {
-        const result = await firecrawl.scrape(url, {
-          formats: [
-            'markdown',
-            {
-              type: 'json',
-              schema: extractSchema,
-              // prompt:"Please extract the author name and the published at date"
-            },
-          ],
-          location: { country: 'US', languages: ['en'] },
-          onlyMainContent: true,
-          proxy: 'auto',
-        })
+          try {
+            const item = await prisma.savedItem.create({
+              data: {
+                url: url,
+                userId: context.session.user.id,
+                status: 'PENDING',
+              },
+            })
 
-        // Ftech it from the schemas
-        const jsonData = result.json as z.infer<typeof extractSchema>
+            const result = await firecrawl.scrape(url, {
+              formats: [
+                'markdown',
+                {
+                  type: 'json',
+                  schema: extractSchema,
+                },
+              ],
+              location: { country: 'US', languages: ['en'] },
+              onlyMainContent: true,
+              proxy: 'auto',
+            })
 
-        console.log(jsonData)
+            const jsonData = result.json as z.infer<typeof extractSchema>
+            let publishedAt = null
+            if (jsonData?.publishedAt) {
+              const parsed = new Date(jsonData.publishedAt)
+              if (!isNaN(parsed.getTime())) {
+                publishedAt = parsed
+              }
+            }
 
-        let publishedAt = null
+            await prisma.savedItem.update({
+              where: { id: item.id },
+              data: {
+                title: result.metadata?.title || null,
+                content: result.markdown || null,
+                ogImage: result.metadata?.ogImage || null,
+                author: jsonData?.author || null,
+                publishedAt: publishedAt,
+                status: 'COMPLETED',
+              },
+            })
 
-        if (jsonData.publishedAt) {
-          const parsed = new Date(jsonData.publishedAt)
-
-          if (!isNaN(parsed.getTime())) {
-            publishedAt = parsed
+            controller.enqueue(
+              encoder.encode(
+                JSON.stringify({
+                  current: i + 1,
+                  total: urls.length,
+                  url,
+                  status: 'completed',
+                }) + '\n',
+              ),
+            )
+          } catch (error) {
+            console.error(`Error scraping ${url}:`, error)
+            controller.enqueue(
+              encoder.encode(
+                JSON.stringify({
+                  current: i + 1,
+                  total: urls.length,
+                  url,
+                  status: 'failed',
+                }) + '\n',
+              ),
+            )
           }
         }
 
-        await prisma.savedItem.update({
-          where: {
-            id: item.id,
-          },
-          data: {
-            title: result.metadata?.title || null,
-            content: result.markdown || null,
-            ogImage: result.metadata?.ogImage || null,
-            author: jsonData.author || null,
-            publishedAt: publishedAt,
-            status: 'COMPLETED',
-          },
-        })
-      } catch (error) {
-        await prisma.savedItem.update({
-          where: {
-            id: item.id,
-          },
-          data: {
-            status: 'FAILED',
-          },
-        })
-      }
-    }
+        // Final done signal
+        controller.enqueue(
+          encoder.encode(
+            JSON.stringify({
+              status: 'done',
+            }) + '\n',
+          ),
+        )
+        controller.close()
+      },
+    })
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    })
   })
 
 export const getItemsFn = createServerFn({ method: 'GET' })

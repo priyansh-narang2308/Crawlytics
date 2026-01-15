@@ -12,7 +12,8 @@ import {
   Sparkles,
 } from 'lucide-react'
 import { useForm } from '@tanstack/react-form'
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { Progress } from '@/components/ui/progress'
 
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
@@ -47,6 +48,13 @@ export const Route = createFileRoute('/dashboard/import')({
 function RouteComponent() {
   const [isPending, startTransition] = useTransition()
   const [bulkIsPending, startBulkTransition] = useTransition()
+  const navigate = useNavigate()
+
+  const [importProgress, setImportProgress] = useState<{
+    current: number
+    total: number
+    url: string
+  } | null>(null)
 
   //States for the bulk import
   const [discoveredLinks, setDiscoveredLinks] = useState<
@@ -80,9 +88,48 @@ function RouteComponent() {
         return
       }
 
-      await bulkScrapeUrlsFn({ data: { urls: urlsToScrape } })
+      const response = (await bulkScrapeUrlsFn({
+        data: { urls: urlsToScrape },
+      })) as unknown as Response
 
-      toast.success(`Successfully queued ${urlsToScrape.length} imports`)
+      if (!response.body) return
+
+      const reader = response.body.getReader()
+      const decoder = new TextDecoder()
+
+      while (true) {
+        const { done, value } = await reader.read()
+        if (done) break
+
+        const chunk = decoder.decode(value, { stream: true })
+        const lines = chunk.split('\n').filter((l) => l.trim())
+
+        for (const line of lines) {
+          try {
+            const data = JSON.parse(line)
+            if (data.status === 'done') {
+              toast.success(`Successfully imported ${urlsToScrape.length} assets`)
+              setSelectedLinks(new Set())
+              setImportProgress(null)
+              navigate({ to: '/dashboard/items' })
+              return
+            }
+            if (
+              data.status === 'processing' ||
+              data.status === 'completed' ||
+              data.status === 'failed'
+            ) {
+              setImportProgress({
+                current: data.current,
+                total: data.total,
+                url: data.url,
+              })
+            }
+          } catch (e) {
+            console.error('Error parsing stream:', e)
+          }
+        }
+      }
     })
   }
 
@@ -514,7 +561,7 @@ function RouteComponent() {
                                       className={cn(
                                         'size-5 rounded-md transition-all duration-300 border-zinc-700',
                                         isSelected &&
-                                          'bg-purple-500 border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]',
+                                        'bg-purple-500 border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.3)]',
                                       )}
                                     />
                                   </div>
@@ -566,7 +613,26 @@ function RouteComponent() {
                           <div className="absolute inset-x-0 bottom-0 h-10 bg-linear-to-t from-zinc-950 to-transparent pointer-events-none" />
                         </ScrollArea>
 
-                        <div className="pt-2">
+                        <div className="pt-2 space-y-4">
+                          {bulkIsPending && importProgress && (
+                            <div className="space-y-2 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                              <div className="flex justify-between text-[11px] font-medium transition-all">
+                                <span className="text-zinc-400 truncate max-w-60">
+                                  {importProgress.url}
+                                </span>
+                                <span className="text-blue-500 font-bold shrink-0">
+                                  {importProgress.current} / {importProgress.total}
+                                </span>
+                              </div>
+                              <Progress
+                                value={
+                                  (importProgress.current / importProgress.total) *
+                                  100
+                                }
+                                className="h-1.5 bg-zinc-800"
+                              />
+                            </div>
+                          )}
                           <Button
                             onClick={handleBulkImport}
                             disabled={bulkIsPending || selectedLinks.size === 0}
