@@ -1,6 +1,6 @@
 import { Button, buttonVariants } from '@/components/ui/button'
 import { getItemById, saveSummaryFn } from '@/data/items'
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useRouter } from '@tanstack/react-router'
 import {
   ArrowLeft,
   Calendar,
@@ -13,6 +13,7 @@ import {
   ChevronDown,
   Sparkles,
   FileText,
+  Loader2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -54,12 +55,15 @@ function RouteComponent() {
   const [isLoading, setIsLoading] = React.useState(true)
   const [isContentOpen, setIsContentOpen] = React.useState(false)
 
+  const router = useRouter()
+
   const {
     completion,
     complete,
     isLoading: isAIProgress,
   } = useCompletion({
     api: '/api/ai/summary',
+    initialCompletion: item?.summary || undefined,
     streamProtocol: 'text',
     body: {
       itemId: item?.id,
@@ -67,9 +71,12 @@ function RouteComponent() {
     },
     onFinish: async (_, completion) => {
       if (item?.id) {
-        await saveSummaryFn({ data: { id: item.id, summary: completion } })
-        setItem((prev: any) => ({ ...prev, summary: completion }))
-        toast.success('Summary synchronized')
+        const updatedItem = await saveSummaryFn({
+          data: { id: item.id, summary: completion },
+        })
+        setItem(updatedItem)
+        toast.success('Summary & Tags generated!')
+        router.invalidate()
       }
     },
     onError: (error) => {
@@ -197,14 +204,17 @@ function RouteComponent() {
               </h1>
 
               {item.tags && item.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3 mt-4">
                   {item.tags.map((tag: string) => (
                     <div
                       key={tag}
-                      className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-zinc-900 border border-white/5 text-[10px] font-black text-zinc-400 uppercase tracking-wider"
+                      className="flex items-center gap-2 px-4 py-2 rounded-full 
+                   bg-white/10 backdrop-blur-md border border-white/20 
+                   text-xs font-bold text-white shadow-lg 
+                   transition-all duration-200 hover:scale-105 hover:bg-white/20"
                     >
-                      <Tag className="h-3 w-3 text-zinc-600" />
-                      {tag}
+                      <Tag className="h-4 w-4 text-orange-400" />
+                      <span className="tracking-tight uppercase">{tag}</span>
                     </div>
                   ))}
                 </div>
@@ -234,11 +244,20 @@ function RouteComponent() {
                     {completion || item.summary}
                   </MessageResponse>
                 ) : (
-                  <p className="text-zinc-300  text-lg">
-                    {isAIProgress
-                      ? 'Analysis in progress...'
-                      : 'No summary generated for this asset yet.'}
-                  </p>
+                  <div className="flex items-center gap-3">
+                    {isAIProgress ? (
+                      <div className="flex items-center gap-2.5">
+                        <Loader2 className="h-5 w-5 text-orange-400 animate-spin" />
+                        <p className="text-zinc-300 text-lg font-medium animate-pulse">
+                          Analysis in progress...
+                        </p>
+                      </div>
+                    ) : (
+                      <p className="text-zinc-400 text-lg italic">
+                        No summary generated for this asset yet.
+                      </p>
+                    )}
+                  </div>
                 )}
               </div>
             </section>
