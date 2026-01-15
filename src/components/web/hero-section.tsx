@@ -1,20 +1,20 @@
 import { Button } from '@/components/ui/button'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Sparkles, Wand2, Search } from 'lucide-react'
+import { ArrowRight, Sparkles, Wand2 } from 'lucide-react'
 import Plasma from '../Plasma'
 
 const HeroSection = () => {
   return (
     <div className="relative min-h-screen w-full flex flex-col items-center justify-center overflow-hidden bg-black">
       <div className="absolute inset-0 z-0">
-        <Plasma 
-    color="#6f6f6f"
-    speed={0.6}
-    direction="forward"
-    scale={1.1}
-    opacity={0.8}
-    mouseInteractive={true}
-  />
+        <Plasma
+          color="#6f6f6f"
+          speed={0.6}
+          direction="forward"
+          scale={1.1}
+          opacity={0.8}
+          mouseInteractive={true}
+        />
       </div>
 
       <div className="absolute inset-0 z-1 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,rgba(0,0,0,0.8)_80%,#000_100%)]" />
@@ -71,7 +71,7 @@ const HeroSection = () => {
           ].map((feature, i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl bg-white/2 border border-white/5 backdrop-blur-sm group hover:border-white/10 transition-colors"
+              className="p-6 rounded-2xl bg-white/5 border border-white/5 group hover:border-emerald-500/30 transition-all duration-500 will-change-transform"
             >
               <div className="p-2 bg-white/5 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500">
                 {feature.icon}

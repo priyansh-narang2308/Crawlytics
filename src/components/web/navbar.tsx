@@ -20,6 +20,13 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetClose,
+} from '@/components/ui/sheet'
+import { Sparkles } from 'lucide-react'
 
 export const Navbar = () => {
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
@@ -58,7 +65,7 @@ export const Navbar = () => {
           className={cn(
             'mx-auto mt-3 max-w-6xl rounded-2xl transition-all duration-300',
             isScrolled
-              ? 'bg-zinc-950/70 backdrop-blur-xl border border-white/10'
+              ? 'bg-zinc-950/80 backdrop-blur-md border border-white/10 will-change-[backdrop-filter]'
               : 'bg-transparent',
           )}
         >
@@ -157,37 +164,108 @@ export const Navbar = () => {
               )}
             </div>
 
-            <button
-              onClick={() => setMenuState(!menuState)}
-              className="lg:hidden"
-              aria-label="Toggle menu"
-            >
-              {!menuState ? (
-                <Menu className="size-6 text-zinc-200" />
-              ) : (
-                <X className="size-6 text-zinc-200" />
-              )}
-            </button>
-          </div>
+            <div className="lg:hidden">
+              <Sheet open={menuState} onOpenChange={setMenuState}>
+                <SheetTrigger asChild>
+                  <button
+                    className="flex size-10 items-center justify-center rounded-xl bg-zinc-900 border border-white/5 text-zinc-200"
+                    aria-label="Toggle menu"
+                  >
+                    <Menu className="size-5" />
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full bg-black border-none p-0 flex flex-col">
+                  <div className="flex items-center justify-between px-6 py-6 border-b border-white/5">
+                    <Link
+                      to="/"
+                      onClick={() => setMenuState(false)}
+                      className="flex items-center gap-2 font-semibold tracking-tight text-white"
+                    >
+                      <CrawlyticsIcon className="h-8 w-8 text-orange-500" />
+                      <span className="text-xl">Crawlytics</span>
+                    </Link>
 
-          {menuState && (
-            <div className="lg:hidden px-5 py-6">
-              <div className="mt-6 flex flex-col gap-3">
-                <Link
-                  to="/login"
-                  className={buttonVariants({ variant: 'outline', size: 'sm' })}
-                >
-                  Login
-                </Link>
-                <Link
-                  to="/signup"
-                  className={buttonVariants({ variant: 'default', size: 'sm' })}
-                >
-                  Get Started
-                </Link>
-              </div>
+                  </div>
+
+                  <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
+                    {/* Badge from Hero */}
+                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
+                      <Sparkles className="size-3" />
+                      The Future of Web Content Discovery
+                    </div>
+
+                    <div className="w-full flex flex-col gap-4">
+                      {isPending ? null : session ? (
+                        <>
+                          <Link
+                            to="/dashboard"
+                            onClick={() => setMenuState(false)}
+                            className={cn(
+                              buttonVariants({
+                                variant: 'outline',
+                                size: 'lg',
+                              }),
+                              'w-full h-14 rounded-2xl border-white/10 text-lg font-bold bg-white/5',
+                            )}
+                          >
+                            <LayoutDashboard className="mr-2 h-5 w-5" />
+                            Dashboard
+                          </Link>
+                          <Button
+                            variant="destructive"
+                            size="lg"
+                            className="w-full h-14 rounded-2xl text-lg font-bold"
+                            onClick={() => {
+                              setMenuState(false)
+                              setIsDialogOpen(true)
+                            }}
+                          >
+                            <LogOut className="mr-2 h-5 w-5" />
+                            Sign Out
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Link
+                            to="/login"
+                            onClick={() => setMenuState(false)}
+                            className={cn(
+                              buttonVariants({
+                                variant: 'outline',
+                                size: 'lg',
+                              }),
+                              'w-full h-14 rounded-2xl border-white/10 text-lg font-bold bg-white/5',
+                            )}
+                          >
+                            Login
+                          </Link>
+                          <Link
+                            to="/signup"
+                            onClick={() => setMenuState(false)}
+                            className={cn(
+                              buttonVariants({
+                                variant: 'default',
+                                size: 'lg',
+                              }),
+                              'w-full h-14 rounded-2xl text-lg font-bold bg-emerald-600 hover:bg-emerald-500',
+                            )}
+                          >
+                            Get Started
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-8 border-t border-white/5 text-center">
+                    <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">
+                      Version 1.0.4 — System Online
+                    </p>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
-          )}
+          </div>
         </div>
       </nav>
     </header>

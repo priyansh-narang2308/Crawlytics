@@ -51,7 +51,7 @@ void mainImage(out vec4 o, vec2 C) {
   float i, d, z, T = iTime * uSpeed * uDirection;
   vec3 O, p, S;
 
-  for (vec2 r = iResolution.xy, Q; ++i < 60.; O += o.w/d*o.xyz) {
+  for (vec2 r = iResolution.xy, Q; ++i < 40.; O += o.w/d*o.xyz) {
     p = z*normalize(vec3(C-.5*r,r.y)); 
     p.z -= 4.; 
     S = p;
@@ -170,8 +170,15 @@ export const Plasma: React.FC<PlasmaProps> = ({
     setSize();
 
     let raf = 0;
+    let isVisible = true;
     const t0 = performance.now();
+
     const loop = (t: number) => {
+      if (!isVisible) {
+        raf = requestAnimationFrame(loop);
+        return;
+      }
+
       let timeValue = (t - t0) * 0.001;
       if (direction === 'pingpong') {
         const pingpongDuration = 10;
@@ -188,17 +195,24 @@ export const Plasma: React.FC<PlasmaProps> = ({
       renderer.render({ scene: mesh });
       raf = requestAnimationFrame(loop);
     };
+
+    const io = new IntersectionObserver(([entry]) => {
+      isVisible = entry.isIntersecting;
+    }, { threshold: 0 });
+
+    io.observe(containerRef.current);
     raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      io.disconnect();
       if (mouseInteractive && containerRef.current) {
         containerRef.current.removeEventListener('mousemove', handleMouseMove);
       }
       try {
         containerRef.current?.removeChild(canvas);
-      } catch {}
+      } catch { }
     };
   }, [color, speed, direction, scale, opacity, mouseInteractive]);
 

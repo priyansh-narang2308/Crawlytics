@@ -41,11 +41,14 @@ const FeaturesSection = () => {
   ]
 
   return (
-    <section className="bg-black py-24 relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-150 bg-emerald-500/5 rounded-full blur-[120px] pointer-events-none" />
+    <section className="bg-black py-24 relative overflow-hidden isolate">
+      {/* Optimized Background Glow - Radial gradient is significantly faster than CSS blur filters */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-[radial-gradient(circle,rgba(16,185,129,0.08)_0%,transparent_70%)] pointer-events-none -z-10"
+      />
 
       <div className="container mx-auto px-4 relative z-10">
-        <div className="text-center max-w-3xl mx-auto mb-20">
+        <div className="text-center max-w-3xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
           <h2 className="text-sm font-black uppercase tracking-[0.3em] text-emerald-500 mb-4">
             Powerful Capabilities
           </h2>
@@ -54,7 +57,7 @@ const FeaturesSection = () => {
             <span className="text-zinc-500 italic">world-class</span> knowledge
             base.
           </h3>
-          <p className="text-zinc-500 text-lg">
+          <p className="text-zinc-500 text-lg font-medium">
             Crawlytics combines agentic crawling with state-of-the-art AI to
             handle the heavy lifting of research for you.
           </p>
@@ -64,7 +67,7 @@ const FeaturesSection = () => {
           {features.map((feature, i) => (
             <div
               key={i}
-              className="p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-emerald-500/20 hover:bg-zinc-900/60 transition-all duration-500 group"
+              className="p-8 rounded-3xl bg-zinc-900/40 border border-white/5 hover:border-emerald-500/20 hover:bg-zinc-900/60 transition-all duration-500 group will-change-transform"
             >
               <div className="size-12 rounded-2xl bg-zinc-950 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 border border-white/5 group-hover:border-emerald-500/20">
                 {feature.icon}
@@ -72,7 +75,7 @@ const FeaturesSection = () => {
               <h4 className="text-xl font-bold text-white mb-3 tracking-tight">
                 {feature.title}
               </h4>
-              <p className="text-zinc-500 leading-relaxed text-sm">
+              <p className="text-zinc-500 leading-relaxed text-sm font-medium">
                 {feature.description}
               </p>
             </div>

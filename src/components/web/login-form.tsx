@@ -55,47 +55,42 @@ export function LoginForm() {
 
   return (
     <div className="w-full max-w-md animate-in fade-in zoom-in duration-500">
-      <Card className="border-white/10 bg-white/5 backdrop-blur-2xl shadow-[0_0_50px_rgba(0,0,0,0.5)] overflow-hidden relative group">
-        <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-emerald-500/50 to-transparent" />
-
-        <CardHeader className="space-y-4 text-center pb-12 pt-10">
-          <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-zinc-950 border border-white/10 group-hover:scale-110 group-hover:border-emerald-500/30 transition-all duration-700 shadow-2xl">
-            <CrawlyticsIcon className="h-10 w-10 text-emerald-400" />
+      <Card className="border-white/10 bg-white/5 backdrop-blur-xl shadow-2xl">
+        <CardHeader className="space-y-3 text-center pb-8">
+          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-xl  mb-2">
+            <CrawlyticsIcon className="h-8 w-8 text-orange-500" />
           </div>
-          <div className="space-y-2">
-            <CardTitle className="text-3xl font-black tracking-tighter text-white">
-              System Login
-            </CardTitle>
-            <CardDescription className="text-zinc-500 font-medium">
-              Access your knowledge engine
-            </CardDescription>
-          </div>
+          <CardTitle className="text-2xl font-bold tracking-tight text-white">
+            Welcome back
+          </CardTitle>
+          <CardDescription className="text-zinc-400">
+            Enter your credentials to access your account
+          </CardDescription>
         </CardHeader>
-
-        <CardContent className="px-8 pb-10">
+        <CardContent className="grid gap-6">
           <form
-            className="space-y-6"
+            className="grid gap-5"
             onSubmit={(e) => {
               e.preventDefault()
               form.handleSubmit()
             }}
           >
-            <FieldGroup className="space-y-4">
+            <FieldGroup className="gap-5">
               <form.Field
                 name="email"
                 children={(field) => {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
-                    <Field data-invalid={isInvalid} className="space-y-2">
+                    <Field data-invalid={isInvalid}>
                       <FieldLabel
                         htmlFor={field.name}
-                        className="text-[11px] font-black uppercase tracking-widest text-zinc-500 ml-1"
+                        className="text-zinc-300"
                       >
-                        Identifier
+                        Email address
                       </FieldLabel>
-                      <div className="relative group/field">
-                        <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within/field:text-emerald-400 transition-colors" />
+                      <div className="relative">
+                        <Mail className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
                         <Input
                           id={field.name}
                           name={field.name}
@@ -104,14 +99,14 @@ export function LoginForm() {
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
                           placeholder="sample@example.com"
-                          className="pl-12 bg-zinc-950/50 border-white/5 focus:border-emerald-500/50 text-white h-12 rounded-xl transition-all font-medium placeholder:text-zinc-700"
+                          className="pl-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
                           aria-invalid={isInvalid}
                           autoComplete="off"
                           disabled={isLoading}
                         />
                       </div>
                       {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} className="text-[11px] font-bold text-rose-500 mt-1 ml-1" />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
                     </Field>
                   )
@@ -124,28 +119,26 @@ export function LoginForm() {
                   const isInvalid =
                     field.state.meta.isTouched && !field.state.meta.isValid
                   return (
-                    <Field data-invalid={isInvalid} className="space-y-2">
-                      <div className="flex items-center justify-between ml-1">
+                    <Field data-invalid={isInvalid}>
+                      <div className="flex items-center justify-between">
                         <FieldLabel
                           htmlFor={field.name}
-                          className="text-[11px] font-black uppercase tracking-widest text-zinc-500"
+                          className="text-zinc-300"
                         >
-                          Access Key
+                          Password
                         </FieldLabel>
-                        <a href="#" className="text-[10px] font-bold text-zinc-600 hover:text-white transition-colors uppercase tracking-tight">
-                          Reset key?
-                        </a>
                       </div>
-                      <div className="relative group/field">
-                        <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-600 group-focus-within/field:text-emerald-400 transition-colors" />
+                      <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
+
                         <Input
                           id={field.name}
                           name={field.name}
-                          type="password"
+                          type={'password'}
                           value={field.state.value}
                           onBlur={field.handleBlur}
                           onChange={(e) => field.handleChange(e.target.value)}
-                          className="pl-12 pr-12 bg-zinc-950/50 border-white/5 focus:border-emerald-500/50 text-white h-12 rounded-xl transition-all font-medium placeholder:text-zinc-700"
+                          className="pl-10 pr-10 bg-white/5 border-white/10 focus:border-primary/50 text-white h-11 transition-all"
                           aria-invalid={isInvalid}
                           placeholder="••••••••"
                           autoComplete="off"
@@ -153,7 +146,7 @@ export function LoginForm() {
                       </div>
 
                       {isInvalid && (
-                        <FieldError errors={field.state.meta.errors} className="text-[11px] font-bold text-rose-500 mt-1 ml-1" />
+                        <FieldError errors={field.state.meta.errors} />
                       )}
                     </Field>
                   )
@@ -163,31 +156,26 @@ export function LoginForm() {
 
             <Button
               type="submit"
-              className="w-full h-12 text-sm font-black uppercase tracking-widest bg-white text-black hover:bg-emerald-400 hover:text-black transition-all duration-500 cursor-pointer rounded-xl group/btn overflow-hidden relative"
+              className="w-full h-11 text-base font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 transition-all cursor-pointer"
               disabled={isLoading}
             >
               {isLoading ? (
-                <Loader2 className="h-4 w-4 animate-spin text-black" />
+                <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                <span className="flex items-center gap-2 relative z-10">
-                  Authenticate Account
-                </span>
+                'Sign in'
               )}
-              <div className="absolute inset-0 bg-emerald-500 scale-x-0 group-hover/btn:scale-x-100 transition-transform origin-left duration-500" />
             </Button>
           </form>
 
-          <div className="mt-10 pt-10 border-t border-white/5">
-            <p className="text-center text-[12px] font-bold text-zinc-500 uppercase tracking-tight">
-              Awaiting entry?{' '}
-              <Link
-                to="/signup"
-                className="text-white hover:text-emerald-400 transition-colors decoration-emerald-500/30 underline decoration-2 underline-offset-4"
-              >
-                Create new clearance
-              </Link>
-            </p>
-          </div>
+          <p className="text-center text-sm text-zinc-400">
+            Don&apos;t have an account?{' '}
+            <Link
+              to="/signup"
+              className="font-medium text-white hover:text-primary transition-colors underline underline-offset-4"
+            >
+              Get started for free
+            </Link>
+          </p>
         </CardContent>
       </Card>
 
