@@ -13,3 +13,7 @@ export const extractSchema = z.object({
   author: z.string().nullable(),
   publishedAt: z.string().nullable(),
 })
+
+export const searchSchema = z.object({
+  query: z.string().min(1),
+})

@@ -8,7 +8,8 @@
 
 - **High-Fidelity Scraping**: Powered by **Firecrawl**, Crawlytics extracts clean markdown and structured JSON from even the most complex web pages.
 - **Intelligent Mapping**: Map entire website architectures and discover deep links with a single click.
-- **AI Executive Summaries**: Automatically generates high-level insights and summaries for every scraped asset.
+- **Streaming Overviews**: Real-time AI Executive Summaries powered by **Vercel AI SDK**. Watch as the system synthesizes complex web content into concise insights instantly.
+- **Intelligent Knowledge Tagging**: Automated content categorization. The system analyzes summaries to generate relevant, high-impact tags for your library.
 - **Collaborative Library**: A unified, searchable command center for your entire collection of web data.
 - **Premium UX/UI**: A futuristic, glassmorphism-inspired interface featuring:
   - **Zero-Scroll Dashboards**: Fixed-view content readers for maximum focus.
@@ -25,6 +26,7 @@ Crawlytics is built on the cutting edge of the modern web ecosystem:
 - **Scraping Engine**: [Firecrawl](https://firecrawl.dev/)
 - **Database Layer**: [PostgreSQL](https://www.postgresql.org/) via [Prisma ORM](https://www.prisma.io/)
 - **Authentication**: [Better Auth](https://better-auth.com/) (Secure, modern auth management)
+- **AI Orchestration**: [Vercel AI SDK](https://sdk.vercel.ai/) & [OpenRouter](https://openrouter.ai/)
 - **UI Components**: [Shadcn/UI](https://ui.shadcn.com/)
 - **Styling**: [Tailwind CSS 4](https://tailwindcss.com/)
 
@@ -56,6 +58,7 @@ Crawlytics is built on the cutting edge of the modern web ecosystem:
    FIRECRAWL_API_KEY="fc-..."
    BETTER_AUTH_SECRET="your-secret"
    BETTER_AUTH_URL="http://localhost:3000"
+   OPENROUTER_API_KEY="sk-or-v1-..."
    ```
 
 4. **Initialize Database**
@@ -76,5 +79,5 @@ Crawlytics is built on the cutting edge of the modern web ecosystem:
 Crawlytics uses a **Server Functions** architecture via TanStack Start, enabling seamless data fetching and scraping operations without the need for a separate API layer.
 
 - `src/data/`: Server-side logic for Prisma operations and Firecrawl integration.
-- `src/routes/`: File-based routing with integrated loaders and metadata management.
-- `src/components/`: Modular UI system built on atomic design principles.
+- `src/routes/`: File-based routing, metadata management, and AI streaming endpoints (`/api/ai/summary`).
+- `src/components/`: Modular UI system with specialized AI-response components.
