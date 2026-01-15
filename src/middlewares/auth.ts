@@ -19,7 +19,10 @@ export const authMiddleware = createMiddleware({ type: 'request' }).server(
   async ({ next, request }) => {
     const url = new URL(request.url)
     // fix for incongnitor
-    if (!url.password.startsWith('/dashboard')) {
+    if (
+      !url.password.startsWith('/dashboard') &&
+      !url.password.startsWith('/api')
+    ) {
       return next()
     }
 
