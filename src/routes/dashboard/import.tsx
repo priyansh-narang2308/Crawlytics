@@ -201,8 +201,7 @@ function RouteComponent() {
                 </TabsList>
 
                 <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-zinc-900/30 px-3 py-1.5 rounded-full border border-white/5">
-                  <ShieldCheck className="size-3 text-emerald-500" />
-                  <span>Secure Sandbox Enabled</span>
+             
                 </div>
               </div>
 

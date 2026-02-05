@@ -35,7 +35,7 @@ export const Route = createFileRoute('/api/ai/summary')({
 
         // The stream summary
         const result = streamText({
-          model: openrouter.chat('xiaomi/mimo-v2-flash:free'),
+          model: openrouter.chat('z-ai/glm-4.5-air:free'),
           system: `You are a helpful assistant that creates concise,
 informative summaries of web content.
 

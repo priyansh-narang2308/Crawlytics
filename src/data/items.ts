@@ -33,7 +33,7 @@ export const scrapeUrlFn = createServerFn({ method: 'POST' })
           {
             type: 'json',
             // schema: extractSchema,
-            prompt:"Please extract the author name and the published at date, the timestamp"
+            prompt: "Please extract the author name and the published at date, the timestamp"
           },
         ],
         location: { country: 'US', languages: ['en'] },
@@ -111,7 +111,7 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
       async start(controller) {
         for (let i = 0; i < urls.length; i++) {
           const url = urls[i]
-          
+
           // Emit initial processing state
           controller.enqueue(
             encoder.encode(
@@ -139,7 +139,7 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
                 {
                   type: 'json',
                   // schema: extractSchema,
-                  prompt:"Please extract the author name and the published at timestamp."
+                  prompt: "Please extract the author name and the published at timestamp."
                 },
               ],
               location: { country: 'US', languages: ['en'] },
@@ -265,7 +265,7 @@ export const saveSummaryFn = createServerFn({ method: 'POST' })
     }
 
     const { text } = await generateText({
-      model: openrouter.chat('xiaomi/mimo-v2-flash:free'),
+      model: openrouter.chat('z-ai/glm-4.5-air:free'),
       system: `You are a helpful assistant that extracts relevant tags from
 content summaries.
 Extract 3-5 short, relevant tags that categorize the content.
