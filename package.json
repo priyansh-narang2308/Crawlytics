@@ -4,7 +4,8 @@
   "type": "module",
   "scripts": {
     "dev": "dotenv -c -- vite dev --port 3000",
-    "build": "vite build",
+    "build": "prisma generate && vite build",
+    "vercel-build": "prisma generate && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "lint": "eslint",
