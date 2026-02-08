@@ -8,7 +8,6 @@ import {
   LinkIcon,
   Loader2,
   Search,
-  ShieldCheck,
   Sparkles,
 } from 'lucide-react'
 import { useForm } from '@tanstack/react-form'
@@ -144,6 +143,7 @@ function RouteComponent() {
       startTransition(async () => {
         await scrapeUrlFn({ data: value })
         toast.success('URL scraped successfully!')
+        navigate({ to: '/dashboard/items' })
       })
     },
   })
@@ -200,9 +200,7 @@ function RouteComponent() {
                   </TabsTrigger>
                 </TabsList>
 
-                <div className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-zinc-900/30 px-3 py-1.5 rounded-full border border-white/5">
-             
-                </div>
+
               </div>
 
               <TabsContent
@@ -215,9 +213,7 @@ function RouteComponent() {
                   </div>
                   <CardHeader className="pb-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="p-2 bg-blue-500/10 rounded-lg text-blue-500">
-                        <LinkIcon className="size-5" />
-                      </div>
+
                       <CardTitle className="text-xl">
                         Import Single Page
                       </CardTitle>
@@ -324,9 +320,7 @@ function RouteComponent() {
                   </div>
                   <CardHeader className="pb-4">
                     <div className="flex items-center gap-2 mb-1">
-                      <div className="p-2 bg-purple-500/10 rounded-lg text-purple-500">
-                        <GlobeIcon className="size-5" />
-                      </div>
+
                       <CardTitle className="text-xl">
                         Deep Website Analysis
                       </CardTitle>

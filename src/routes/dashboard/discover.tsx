@@ -158,13 +158,11 @@ function RouteComponent() {
           <div className="lg:col-span-8 space-y-6">
             <Card className="bg-zinc-900/40 border-white/5 backdrop-blur-sm shadow-2xl overflow-hidden relative group">
               <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-                <Compass className="size-24 -rotate-12" />
+                <Compass className="size-24 -rotate-12 text-emerald-300" />
               </div>
               <CardHeader className="pb-4">
                 <div className="flex items-center gap-2 mb-1">
-                  <div className="p-2 bg-emerald-500/10 rounded-lg text-emerald-500">
-                    <Compass className="size-5" />
-                  </div>
+
                   <CardTitle className="text-xl">Topic Search</CardTitle>
                 </div>
                 <CardDescription className="text-zinc-400">

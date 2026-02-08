@@ -275,18 +275,6 @@ function RouteComponent() {
                           {item.title || item.url}
                         </h3>
                       </Link>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="size-9 shrink-0 rounded-xl bg-zinc-950/50 border border-white/5 text-zinc-500 hover:text-white hover:border-white/20 transition-all"
-                        onClick={(e) => {
-                          e.preventDefault()
-                          navigator.clipboard.writeText(item.url)
-                          toast.success('URL copied')
-                        }}
-                      >
-                        <Copy className="size-4" />
-                      </Button>
                     </div>
                   </div>
 
@@ -301,18 +289,7 @@ function RouteComponent() {
                         {item.author && item.publishedAt && (
                           <span className="text-zinc-800">•</span>
                         )}
-                        {item.publishedAt && (
-                          <span>
-                            {new Date(item.publishedAt).toLocaleDateString(
-                              undefined,
-                              {
-                                month: 'short',
-                                day: 'numeric',
-                                year: 'numeric',
-                              },
-                            )}
-                          </span>
-                        )}
+
                       </div>
 
                       <a

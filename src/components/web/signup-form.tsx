@@ -44,7 +44,7 @@ export function SignupForm() {
         password: value.password,
         fetchOptions: {
           onSuccess: () => {
-            navigate({ to: '/dashboard' })
+            navigate({ to: '/dashboard/import' })
             toast.success('Account created successfully.')
           },
           onError: ({ error }) => {

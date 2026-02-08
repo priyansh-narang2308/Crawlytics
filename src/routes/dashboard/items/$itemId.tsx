@@ -126,10 +126,10 @@ function RouteComponent() {
 
   const publishedDate = item.publishedAt
     ? new Date(item.publishedAt).toLocaleDateString(undefined, {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      })
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    })
     : null
 
   return (
@@ -180,11 +180,11 @@ function RouteComponent() {
               <div className="flex items-center gap-3">
                 <div
                   className={cn(
-                    'inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-black uppercase tracking-widest border',
+                    'inline-flex items-center px-2 py-0.5 rounded-md text-[12px] font-bold  border',
                     item.status === 'COMPLETED'
                       ? 'bg-emerald-400/10 text-emerald-400 border-emerald-400/20'
                       : item.status === 'PROCESSING' ||
-                          item.status === 'PENDING'
+                        item.status === 'PENDING'
                         ? 'bg-yellow-400/10 text-yellow-400 border-yellow-400/20'
                         : 'bg-rose-500/10 text-rose-500 border-rose-500/20',
                   )}
@@ -192,14 +192,14 @@ function RouteComponent() {
                   {item.status}
                 </div>
                 {publishedDate && (
-                  <div className="flex items-center gap-1.5 text-[11px] text-zinc-500 font-bold">
+                  <div className="flex items-center gap-1.5 text-[12px] text-zinc-500 font-bold">
                     <Calendar className="h-3 w-3" />
                     {publishedDate}
                   </div>
                 )}
               </div>
 
-              <h1 className="text-4xl lg:text-5xl font-black tracking-tight text-white leading-[1.1] break-all">
+              <h1 className="text-4xl lg:text-4xl font-black tracking-tight text-white leading-[1.1] break-all">
                 {item.title || item.url}
               </h1>
 
@@ -208,13 +208,13 @@ function RouteComponent() {
                   {item.tags.map((tag: string) => (
                     <div
                       key={tag}
-                      className="flex items-center gap-2 px-4 py-2 rounded-full 
-                   bg-white/10 backdrop-blur-md border border-white/20 
-                   text-xs font-bold text-white shadow-lg 
-                   transition-all duration-200 hover:scale-105 hover:bg-white/20"
+                      className="flex items-center gap-1.5 px-3 py-1 rounded-full 
+      bg-white/10 backdrop-blur-md border border-white/10 
+      text-[12px] font-bold text-white shadow-md 
+      transition-all duration-200 hover:scale-105 hover:bg-white/20"
                     >
-                      <Tag className="h-4 w-4 text-orange-400" />
-                      <span className="tracking-tight uppercase">{tag}</span>
+                      <Tag className="h-3 w-3 text-orange-400" />
+                      <span className="tracking-tighter uppercase">{tag}</span>
                     </div>
                   ))}
                 </div>
@@ -309,7 +309,7 @@ function RouteComponent() {
             {item.ogImage && (
               <div className="relative aspect-video w-full overflow-hidden rounded-2xl border border-white/5 bg-zinc-950 shadow-2xl shrink-0 group">
                 <img
-                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  className="h-full w-full object-cover"
                   src={item.ogImage}
                   alt={item.title ?? 'Display Image'}
                 />
@@ -318,12 +318,12 @@ function RouteComponent() {
             )}
 
             <div className="p-6 rounded-2xl bg-zinc-900/40 border border-white/5 space-y-6 backdrop-blur-xl">
-              <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-zinc-500">
+              <h3 className="text-[14px] font-semibold text-zinc-500">
                 Knowledge Asset Details
               </h3>
               <div className="space-y-5">
                 <div className="space-y-2">
-                  <span className="text-[10px] text-zinc-500 font-black uppercase tracking-wider block">
+                  <span className="text-[12px] text-zinc-500 font-semibold  block">
                     Source Entity / Author
                   </span>
                   <div className="flex items-center gap-2.5">
@@ -336,7 +336,7 @@ function RouteComponent() {
                   </div>
                 </div>
                 <div className="space-y-2 text-zinc-400">
-                  <span className="text-[10px] text-zinc-500 font-black uppercase tracking-wider block">
+                  <span className="text-[12px] text-zinc-500 font-semibold block">
                     Created On
                   </span>
                   <div className="flex items-center gap-2.5 text-sm font-bold">
