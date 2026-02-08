@@ -48,7 +48,7 @@ Crawlytics is built on the cutting edge of the modern web ecosystem:
 
 2. **Install Dependencies**
    ```bash
-   npm install
+   pnpm install
    ```
 
 3. **Environment Setup**
@@ -69,7 +69,7 @@ Crawlytics is built on the cutting edge of the modern web ecosystem:
 
 5. **Fire it up**
    ```bash
-   npm run dev
+   pnpm dev
    ```
 
 ---
