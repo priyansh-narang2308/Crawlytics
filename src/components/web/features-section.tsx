@@ -42,19 +42,16 @@ const FeaturesSection = () => {
 
   return (
     <section className="bg-black py-24 relative overflow-hidden isolate">
-      {/* Optimized Background Glow - Radial gradient is significantly faster than CSS blur filters */}
       <div
         className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 size-[600px] bg-[radial-gradient(circle,rgba(16,185,129,0.08)_0%,transparent_70%)] pointer-events-none -z-10"
       />
 
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center max-w-3xl mx-auto mb-20 animate-in fade-in slide-in-from-bottom-8 duration-700">
-          <h2 className="text-sm font-black uppercase tracking-[0.3em] text-emerald-500 mb-4">
-            Powerful Capabilities
-          </h2>
+         
           <h3 className="text-3xl md:text-5xl font-bold text-white tracking-tight mb-6">
             Everything you need to build a <br />
-            <span className="text-zinc-500 italic">world-class</span> knowledge
+            <span className="text-green-500 italic">world-class</span> knowledge
             base.
           </h3>
           <p className="text-zinc-500 text-lg font-medium">

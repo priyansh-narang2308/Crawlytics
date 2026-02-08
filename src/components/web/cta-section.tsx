@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button'
 import { Link } from '@tanstack/react-router'
-import { ArrowRight, Sparkles } from 'lucide-react'
+import { ArrowRight } from 'lucide-react'
 
 const CTASection = () => {
   return (
@@ -13,11 +13,7 @@ const CTASection = () => {
           <div className="absolute inset-0 bg-linear-to-br from-emerald-500/10 via-transparent to-indigo-500/10 opacity-50 group-hover:opacity-80 transition-opacity duration-1000" />
 
           <div className="relative z-10 max-w-3xl mx-auto">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400 mb-8">
-              <Sparkles className="size-3" />
-              Start your journey
-            </div>
-
+           
             <h2 className="text-4xl md:text-6xl font-bold text-white tracking-tighter mb-8 leading-[1.1]">
               Ready to turn the entire web into your{' '}
               <span className="text-emerald-400 italic">personal library?</span>

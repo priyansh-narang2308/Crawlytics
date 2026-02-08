@@ -50,7 +50,7 @@ export function AppSidebar({ user }: NavUserProps) {
           group-data-[collapsible=icon]:justify-center
         "
             >
-              <Link to="/dashboard" className="flex items-center gap-3">
+              <Link to="/" className="flex items-center gap-3">
                 <div
                   className="
               flex h-10 w-10 items-center justify-center
