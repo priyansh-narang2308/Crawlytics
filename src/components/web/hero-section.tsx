@@ -19,8 +19,7 @@ const HeroSection = () => {
 
       <div className="absolute inset-0 z-1 bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.05)_0%,rgba(0,0,0,0.8)_80%,#000_100%)]" />
 
-      <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl pt-20">
-        
+      <div className="relative z-10 container mx-auto px-4 text-center max-w-5xl pt-25">
         <h1 className="text-5xl md:text-6xl lg:text-7xl font-black text-white  leading-[0.9] mb-8 ">
           Turn the Web into Your <br />
           <span className="bg-linear-to-r from-emerald-400 via-emerald-200 to-indigo-400 bg-clip-text text-transparent">
@@ -44,7 +43,6 @@ const HeroSection = () => {
               <ArrowRight className="ml-2 size-5" />
             </Link>
           </Button>
-
         </div>
 
         <div className="mt-20 grid grid-cols-1 sm:grid-cols-3 gap-8 text-left max-w-4xl mx-auto">
@@ -67,7 +65,7 @@ const HeroSection = () => {
           ].map((feature, i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl bg-white/5 border border-white/5 group hover:border-emerald-500/30 transition-all duration-500 will-change-transform"
+              className="p-6 rounded-2xl bg-white/5 border border-white/5 group hover:border-emerald-500/30 transition-all duration-500"
             >
               <div className="p-2 bg-white/5 rounded-xl w-fit mb-4 group-hover:scale-110 transition-transform duration-500">
                 {feature.icon}

@@ -33,7 +33,8 @@ export const scrapeUrlFn = createServerFn({ method: 'POST' })
           {
             type: 'json',
             // schema: extractSchema,
-            prompt: "Please extract the author name and the published at date, the timestamp"
+            prompt:
+              'Please extract the author name and the published at date, the timestamp',
           },
         ],
         location: { country: 'US', languages: ['en'] },
@@ -139,7 +140,8 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
                 {
                   type: 'json',
                   // schema: extractSchema,
-                  prompt: "Please extract the author name and the published at timestamp."
+                  prompt:
+                    'Please extract the author name and the published at timestamp.',
                 },
               ],
               location: { country: 'US', languages: ['en'] },
@@ -209,7 +211,7 @@ export const bulkScrapeUrlsFn = createServerFn({ method: 'POST' })
       headers: {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-cache',
-        'Connection': 'keep-alive',
+        Connection: 'keep-alive',
       },
     })
   })
@@ -265,7 +267,7 @@ export const saveSummaryFn = createServerFn({ method: 'POST' })
     }
 
     const { text } = await generateText({
-      model: openrouter.chat('z-ai/glm-4.5-air:free'),
+      model: openrouter.chat('sourceful/riverflow-v2.5-fast'),
       system: `You are a helpful assistant that extracts relevant tags from
 content summaries.
 Extract 3-5 short, relevant tags that categorize the content.
@@ -309,5 +311,4 @@ export const searchWebFn = createServerFn({ method: 'POST' })
       title: (item as SearchResultWeb).title,
       description: (item as SearchResultWeb).description,
     })) as SearchResultWeb[]
-
   })

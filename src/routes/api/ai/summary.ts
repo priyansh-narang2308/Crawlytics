@@ -35,7 +35,7 @@ export const Route = createFileRoute('/api/ai/summary')({
 
         // The stream summary
         const result = streamText({
-          model: openrouter.chat('z-ai/glm-4.5-air:free'),
+          model: openrouter.chat('sourceful/riverflow-v2.5-fast'),
           system: `You are a helpful assistant that creates concise,
 informative summaries of web content.
 

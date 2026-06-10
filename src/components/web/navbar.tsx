@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import { Menu, X } from 'lucide-react'
+import { Menu } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Link } from '@tanstack/react-router'
@@ -20,13 +20,7 @@ import {
   AlertDialogCancel,
 } from '@/components/ui/alert-dialog'
 import { toast } from 'sonner'
-import {
-  Sheet,
-  SheetContent,
-  SheetTrigger,
-  SheetClose,
-} from '@/components/ui/sheet'
-import { Sparkles } from 'lucide-react'
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet'
 
 export const Navbar = () => {
   const [isLoggingOut, setIsLoggingOut] = React.useState(false)
@@ -86,14 +80,16 @@ export const Navbar = () => {
                     className={buttonVariants({
                       variant: 'default',
                       size: 'sm',
-
                     })}
                   >
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     Dashboard
                   </Link>
 
-                  <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                  <AlertDialog
+                    open={isDialogOpen}
+                    onOpenChange={setIsDialogOpen}
+                  >
                     <AlertDialogTrigger asChild>
                       <Button
                         size="icon"
@@ -174,7 +170,10 @@ export const Navbar = () => {
                     <Menu className="size-5" />
                   </button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full bg-black border-none p-0 flex flex-col">
+                <SheetContent
+                  side="right"
+                  className="w-full bg-black border-none p-0 flex flex-col"
+                >
                   <div className="flex items-center justify-between px-6 py-6 border-b border-white/5">
                     <Link
                       to="/"
@@ -184,16 +183,9 @@ export const Navbar = () => {
                       <CrawlyticsIcon className="h-8 w-8 text-orange-500" />
                       <span className="text-xl">Crawlytics</span>
                     </Link>
-
                   </div>
 
                   <div className="flex-1 flex flex-col items-center justify-center px-6 gap-8">
-                    {/* Badge from Hero */}
-                    <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/5 border border-emerald-500/20 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">
-                      <Sparkles className="size-3" />
-                      The Future of Web Content Discovery
-                    </div>
-
                     <div className="w-full flex flex-col gap-4">
                       {isPending ? null : session ? (
                         <>
@@ -255,12 +247,6 @@ export const Navbar = () => {
                         </>
                       )}
                     </div>
-                  </div>
-
-                  <div className="p-8 border-t border-white/5 text-center">
-                    <p className="text-zinc-600 text-[10px] font-black uppercase tracking-[0.3em]">
-                      Version 1.0.4 — System Online
-                    </p>
                   </div>
                 </SheetContent>
               </Sheet>
